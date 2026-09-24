@@ -1,0 +1,39 @@
+{
+  "currency": "UGX",
+  "unit": "litre",
+  "updatedAt": "2026-09-21",
+  "source": "GlobalPetrolPrices Uganda national average fallback",
+  "sourceUrl": "https://www.globalpetrolprices.com/Uganda/gasoline_prices/",
+  "nationalAverage": {
+    "Petrol": 6875,
+    "Diesel": 6725,
+    "CNG": null,
+    "Kerosene": null,
+    "LPG": null,
+    "Other": null
+  },
+  "stations": [
+    { "id": "shell-kampala-road", "name": "Shell Kampala Road", "city": "Kampala", "prices": {} },
+    { "id": "shell-kireka", "name": "Shell Kireka", "city": "Kireka", "prices": {} },
+    { "id": "shell-banda-market", "name": "Shell Banda Market", "city": "Banda", "prices": {} },
+    { "id": "shell-nakawa", "name": "Shell Nakawa", "city": "Nakawa", "prices": {} },
+    { "id": "shell-yard-jinja-road", "name": "Shell Yard Jinja Road", "city": "Kampala", "prices": {} },
+    { "id": "total-kireka", "name": "Total Kireka", "city": "Kireka", "prices": {} },
+    { "id": "total-nakawa", "name": "Total Nakawa", "city": "Nakawa", "prices": {} },
+    { "id": "vivo-kampala", "name": "Vivo Energy Kampala", "city": "Kampala", "prices": {} },
+    { "id": "excel-kireka", "name": "Excel Kireka", "city": "Kireka", "prices": {} },
+    { "id": "city-oil-kireka", "name": "City Oil Kireka", "city": "Kireka", "prices": {} },
+    { "id": "city-oil-kyambogo", "name": "City Oil Kyambogo", "city": "Kyambogo", "prices": {} },
+    { "id": "petro-banda", "name": "Petro Banda", "city": "Banda", "prices": {} },
+    { "id": "mogas-banda", "name": "Mogas Banda", "city": "Banda", "prices": {} },
+    { "id": "rubis-kireka", "name": "Rubis Kireka", "city": "Kireka", "prices": {} },
+    { "id": "texol-kampala", "name": "Texol Kampala", "city": "Kampala", "prices": {} },
+    { "id": "stabex-banda", "name": "Stabex Banda", "city": "Banda", "prices": {} },
+    { "id": "hash-banda", "name": "Hash Banda", "city": "Banda", "prices": {} },
+    { "id": "luqman-kyambogo", "name": "Luqman Kyambogo", "city": "Kyambogo", "prices": {} },
+    { "id": "moil-banda", "name": "Moil Banda", "city": "Banda", "prices": {} },
+    { "id": "shell-entebbe", "name": "Shell Entebbe", "city": "Entebbe", "prices": {} },
+    { "id": "total-entebbe", "name": "Total Entebbe", "city": "Entebbe", "prices": {} },
+    { "id": "vivo-entebbe", "name": "Vivo Energy Entebbe", "city": "Entebbe", "prices": {} }
+  ]
+}

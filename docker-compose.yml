@@ -1,0 +1,47 @@
+services:
+  mama-africa-transport:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mama-africa-transport:latest
+    container_name: mama-africa-transport
+    init: true
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  translation-api:
+    build:
+      context: ./translation-service
+      dockerfile: Dockerfile
+    image: mama-africa-translation-proxy:latest
+    environment:
+      GOOGLE_TRANSLATE_API_KEY: "${GOOGLE_TRANSLATE_API_KEY:-}"
+      ALLOWED_ORIGIN: "${APP_ORIGIN:-}"
+    expose:
+      - "3001"
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/healthz').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
