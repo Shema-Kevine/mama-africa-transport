@@ -17,6 +17,8 @@ Location is never requested on page load. A driver must tap **Allow location sha
 
 The administrator can export the driver database as CSV from the Drivers page. The export includes operational driver details and document references, but never includes password hashes or salts.
 
+Administrator sections are connected through the sidebar and the Dashboard quick links. Each section also has a URL hash such as `#trips`, `#fuel`, or `#view-all`, so a page can be bookmarked or opened directly after sign-in.
+
 ## Run locally
 
 Serve the directory from a local web server so browser storage and the map APIs work:
@@ -123,6 +125,10 @@ The Drivers page maintains a browser-based driver database under the `driverData
 Supported Ugandan plate examples include old private format `UAA001A` and new/digital private format `UA001AA`; spaces are removed while entering a plate. The assigned taxi is linked by its stable taxi ID, so the driver profile can also show the taxi's latest GPS coordinates, accuracy, update time, and active/inactive status.
 
 The driver portal includes a persistent language selector in its Settings card. English, French, Arabic, Portuguese, Hindi, Swahili, Luganda, Runyankole, Acholi, Ateso, Somali, Lugbara, Rukiga, Runyoro, Sango, and Lango are listed. Translated labels and messages use the selected language; phrases without a maintained translation fall back to English. The selected language is stored with the driver account and reused on the next login.
+
+The driver portal also includes an organized per-trip report form. Drivers record trip basics, route, passengers, fare and payment, assigned taxi, odometer and distance, waiting time, expenses, GPS status, incidents, cargo, receipt references, and notes. Drafts save automatically in the current browser. A submitted report is written to the shared `trips` browser key with the driver's identity and assigned taxi, so the administrator sees it on the Trips page, dashboard summaries, collections, Records, and CSV exports. The same report can be edited by the driver until it is replaced by a new submission.
+
+Because this build is browser-local, the administrator and driver must use the same browser profile/origin for immediate visibility. A real multi-device driver-to-administrator workflow requires an authenticated server API and database; the current localStorage layer is a demo/same-browser implementation.
 
 ### Optional Google-assisted natural translations
 
