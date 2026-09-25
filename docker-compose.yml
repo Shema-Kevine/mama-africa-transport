@@ -9,6 +9,11 @@ services:
     restart: unless-stopped
     ports:
       - "${APP_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+      translation-api:
+        condition: service_started
     read_only: true
     tmpfs:
       - /var/cache/nginx
@@ -20,6 +25,39 @@ services:
       test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1/healthz"]
       interval: 30s
       timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    image: mama-africa-api:latest
+    container_name: mama-africa-api
+    init: true
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_PATH: /app/data/mama-africa.sqlite
+      ADMIN_USERNAME: "${ADMIN_USERNAME:-admin}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}"
+      DOCUMENT_ENCRYPTION_KEY: "${DOCUMENT_ENCRYPTION_KEY:-}"
+      ALLOWED_ORIGIN: "${APP_ORIGIN:-}"
+      COOKIE_SECURE: "${COOKIE_SECURE:-false}"
+    expose:
+      - "3000"
+    volumes:
+      - mama-africa-data:/app/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
       retries: 3
       start_period: 5s
 
@@ -45,3 +83,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 5s
+
+volumes:
+  mama-africa-data:

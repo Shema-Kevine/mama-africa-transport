@@ -9,11 +9,11 @@ On a fresh browser profile, the dashboard provisions the requested bootstrap adm
 - **Username:** `admin`
 - **Password:** `mamaafrica`
 
-This is a hardcoded development credential and is visible in the static client; use it only for a private/demo deployment and replace it with a server-backed authentication flow before production. Existing administrator accounts are not overwritten. After signing in, administrators create and manage driver portal usernames and passwords from the Drivers page. Drivers cannot create or edit their own accounts; they sign in with the details supplied by the administrator.
+The static-only fallback provisions `admin` / `mamaafrica` for a fresh browser profile. The shared Docker API instead reads `ADMIN_USERNAME` and `ADMIN_PASSWORD` from `.env`; production refuses to start without an administrator password. Existing accounts are not overwritten. Administrators create and manage driver portal usernames and passwords from the Drivers page. Drivers cannot create or edit their own accounts; they sign in with the details supplied by the administrator.
 
-Passwords are stored as salted SHA-256 hashes in the browser rather than plain text. The driver portal exposes only the signed-in driver's read-only account summary and operational submission forms; the full fleet dashboard and account management remain administrator-only.
+In static-only mode, passwords and records remain in the browser. When the shared API is enabled, passwords are verified by the Node service, sessions use HttpOnly cookies, and the server enforces administrator/driver permissions. The driver portal exposes only the signed-in driver's read-only account summary and operational submission forms; the full fleet dashboard and account management remain administrator-only.
 
-The driver portal does not request location on page load. Location data is only attached to a trip when a shared location is already available; a production deployment should provide an explicit, administrator-controlled GPS consent flow.
+The driver portal never requests location on page load. In the trip view, the driver must explicitly tap **Share GPS location** before a position is sent; live GPS can then be started and stopped. The API requires a consent flag and records an audit event.
 
 The administrator can export the driver database as CSV from the Drivers page. The export includes operational driver details and document references, but never includes password hashes or salts.
 
@@ -27,20 +27,48 @@ Serve the directory from a local web server so browser storage and the map APIs 
 python3 -m http.server 8000
 ```
 
-Then open `http://localhost:8000`.
+Then open `http://localhost:8000`. This is the static fallback mode; data is browser-local.
+
+## Run the shared API
+
+The repository includes a dependency-free Node API backed by SQLite. For a same-origin production-style deployment, use the Docker Compose configuration below. For local API development:
+
+```bash
+DATABASE_PATH=./data/mama-africa.sqlite \\
+ADMIN_USERNAME=admin \\
+ADMIN_PASSWORD='replace-with-a-long-random-password' \\
+DOCUMENT_ENCRYPTION_KEY='replace-with-a-stable-secret' \\
+PORT=3000 node server.js
+```
+
+The API process also serves the static frontend for local development, so after starting it open `http://localhost:3000`. The browser client automatically uses `/api` when the API health endpoint is available and falls back to local-only mode when it is not. The API provides server-side sessions, role-filtered state, collection synchronization, encrypted document storage, GPS consent enforcement, and audit logs. Set `APP_ORIGIN` when the API is accessed from a different origin. Important routes include `/api/auth/login`, `/api/state`, `/api/collections/*`, `/api/gps`, `/api/documents`, and `/api/audit`.
+
+The repository includes a GitHub Actions workflow for syntax checks, API tests, and HTML validation. Run the same automated API checks locally with:
+
+```bash
+node --test test/api.test.js
+```
+
+Create a consistent SQLite backup with:
+
+```bash
+DATABASE_PATH=./data/mama-africa.sqlite node backup.js
+```
 
 ## Run in Docker
 
-The whole static dashboard can be packaged as a single Nginx container. It includes the HTML, logo, fuel-price feed, health endpoint, caching rules, and security headers.
+The complete administrator/driver system can be packaged as Nginx plus the shared API and optional translation proxy. The API uses a persistent SQLite volume, server-side sessions, encrypted document storage, and role enforcement. Copy `.env.example` to `.env` and set a strong `ADMIN_PASSWORD` and `DOCUMENT_ENCRYPTION_KEY` before starting Compose.
 
-The simplest option on a machine without the Compose plugin is plain Docker:
+For the complete system, use Compose so the Nginx frontend, shared API, persistent database volume, and optional translation proxy start together. The plain Docker command below serves the frontend only; run `Dockerfile.api` separately if Compose is unavailable.
 
 ```bash
 docker build -t mama-africa-transport:latest .
 docker run -d --name mama-africa-transport --restart unless-stopped -p 8080:80 mama-africa-transport:latest
 ```
 
-Open `http://localhost:8080`.
+Open `http://localhost:8080` after the frontend-only container starts.
+
+To run the shared API without Compose, build `Dockerfile.api`, provide `ADMIN_PASSWORD` and `DATABASE_PATH`, and publish its port on your private network. The Nginx configuration expects the service name `api` on the Compose network.
 
 If you run the command again and Docker reports that the container name already exists, remove the old container first:
 
@@ -48,9 +76,11 @@ If you run the command again and Docker reports that the container name already 
 docker rm -f mama-africa-transport
 ```
 
-With the Docker Compose plugin installed, the equivalent command is:
+With the Docker Compose plugin installed, set the required secrets first:
 
 ```bash
+cp .env.example .env
+# edit .env and set ADMIN_PASSWORD and DOCUMENT_ENCRYPTION_KEY
 docker compose up --build -d
 ```
 
@@ -69,18 +99,18 @@ docker ps
 curl http://localhost:8080/healthz
 ```
 
-Stop or remove the Compose service with `docker compose down`. The container serves the static site; records and GPS reports remain in each visitor's browser `localStorage`, because this project does not include a server database. For production GPS access, serve the container behind HTTPS and use a shared backend for multi-device reporting.
+Stop or remove the Compose services with `docker compose down`. The API stores shared records in the `mama-africa-data` volume. If the API is not running, the UI deliberately falls back to browser-local storage. For production, serve the Nginx container behind HTTPS, restrict API origins, and back up the database volume.
 
 ### Containerized driver dashboard
 
-The driver portal is part of the same production container as the administrator dashboard. After signing in with a driver account, the container provides one focused **What do you need to do?** menu. Selecting **Record a trip**, **Fuel**, or **Expenses & maintenance** opens only that view; the account icon opens a read-only identity summary. The administrator and driver views are role-separated in the same image, so a separate driver container is not required.
+The driver portal is part of the same production deployment as the administrator dashboard. After signing in with a driver account, the container provides one focused **What do you need to do?** menu. Selecting **Record a trip**, **Fuel**, or **Expenses & maintenance** opens only that view; the account icon opens a read-only identity summary. The administrator and driver views are role-separated in the same deployment, so a separate driver container is not required.
 
 ```bash
 docker build -t mama-africa-transport:latest .
 docker run -d --name mama-africa-transport --restart unless-stopped -p 8080:80 mama-africa-transport:latest
 ```
 
-Open `http://localhost:8080`, sign in with a driver account created by the administrator, and choose an action from the menu. Use the account icon only to view the driver's identity and assigned taxi; account changes are handled by the administrator. The current container is still browser-local: driver-submitted trip, fuel, and maintenance records appear in the administrator workspace when both roles use the same browser origin. Use a shared authenticated backend before deploying separate driver devices.
+Open `http://localhost:8080`, sign in with a driver account created by the administrator, and choose an action from the menu. Use the account icon only to view the driver's identity and assigned taxi; account changes are handled by the administrator. With the Compose API running, driver-submitted trip, fuel, maintenance, GPS, and document records are shared across devices through the authenticated API.
 
 ## Google Maps search and navigation
 
@@ -127,7 +157,7 @@ Maintenance records use a repeatable detailed cost breakdown. Add parts, labour,
 
 The Taxis page includes a fleet GPS panel with a map, per-taxi status, coordinates, accuracy, last-update time, one-time GPS capture, and live tracking while a taxi device keeps the page open. Clicking a taxi row or its **GPS** action selects that taxi, centers the map on its latest coordinates, and opens its location popup. Locations are stored in the browser under `taxiLocations`.
 
-Because this is a static browser application, it cannot read a closed or remote taxi device in the background. Each taxi device must open the site, grant location permission, and report its GPS position. A production multi-device deployment would need a shared authenticated GPS endpoint or backend.
+In static-only mode, the app cannot read a closed or remote taxi device in the background. With the shared API, authenticated drivers can explicitly share one GPS position or live GPS updates; the server records the latest position and audit event. A production deployment should still define GPS retention and device-management policies.
 
 ## Driver database and documents
 
@@ -137,9 +167,9 @@ Supported Ugandan plate examples include old private format `UAA001A` and new/di
 
 The driver portal uses the language selected at sign-in or stored on the driver account. English, French, Arabic, Portuguese, Hindi, Swahili, Luganda, Runyankole, Acholi, Ateso, Somali, Lugbara, Rukiga, Runyoro, Sango, and Lango are listed. Translated labels and messages use the selected language; phrases without a maintained translation fall back to English.
 
-The driver portal opens directly to the **What do you need to do?** menu. It has no overview, profile editor, password editor, duplicate summary cards, location/settings pages, or repeated account data in the main flow. The account icon opens a read-only summary only. A local illustrated instruction slideshow rotates automatically and can also be controlled with the left/right arrows, dot controls, keyboard arrows, or touch swipes; each action card also includes a matching visual thumbnail. Choose **Record a trip** to enter a trip, **Fuel** for a fill-up, or **Expenses & maintenance** for service or faults; only the selected view is visible at a time. Drafts save automatically in the current browser. A submitted report is written to the shared `trips`, `fuelRecords`, or `maintenanceRecords` browser key with the driver's identity and assigned taxi, so the administrator sees it on the relevant dashboard pages, collections, Records, and CSV exports. The trip report can be edited by the driver until it is replaced by a new submission.
+The driver portal opens directly to the **What do you need to do?** menu. It has no overview, profile editor, password editor, duplicate summary cards, or repeated account data in the main flow. The account icon opens a read-only summary only. A local illustrated instruction slideshow rotates automatically and can also be controlled with the left/right arrows, dot controls, keyboard arrows, or touch swipes; each action card also includes a matching visual thumbnail. Choose **Record a trip** to enter a trip, **Fuel** for a fill-up, or **Expenses & maintenance** for service or faults; only the selected view is visible at a time. Drafts save automatically in the current browser and synchronize to the API when it is enabled. A submitted report is written to the shared `trips`, `fuelRecords`, or `maintenanceRecords` collection with the driver's identity and assigned taxi, so the administrator sees it on the relevant dashboard pages, collections, Records, and CSV exports. Trip, fuel, and maintenance records submitted by the driver can be edited by that driver until they are replaced by a new submission.
 
-The driver forms use the same integrations as the administrator workspace: Google Places/Map search for Uganda pickup/drop-off points, fuel stations, and service providers; Google Routes/OpenStreetMap fallback for distance; the Uganda fuel-price catalog for suggested pump rates; and the optional Google Cloud Translation proxy for localized interface text. Driver records never send passenger names or document files to these services. Stored taxi, driver, account, trip, fuel, and maintenance lists are normalized on load and save so repeated IDs are not displayed or counted twice. Because this build is browser-local, the administrator and driver must use the same browser profile/origin for immediate visibility. A real multi-device driver-to-administrator workflow requires an authenticated server API and database; the current localStorage layer is a demo/same-browser implementation.
+The driver forms use the same integrations as the administrator workspace: Google Places/Map search for Uganda pickup/drop-off points, fuel stations, and service providers; Google Routes/OpenStreetMap fallback for distance; the Uganda fuel-price catalog for suggested pump rates; and the optional Google Cloud Translation proxy for localized interface text. Driver records never send passenger names or document files to these services. When the shared API is enabled, collections, GPS reports, account preferences, and encrypted document metadata/files are synchronized through authenticated server endpoints; otherwise the UI falls back to localStorage.
 
 ### Optional Google-assisted natural translations
 
@@ -169,6 +199,6 @@ docker run -d --name mama-africa-transport --network mama-africa-net -p 8080:80 
 
 If the network or containers already exist, remove them with `docker rm -f mama-africa-transport mama-africa-translation-api` and `docker network rm mama-africa-net` before retrying. Never put the translation key in `index.html` or commit it to Git. If no key is supplied, the dashboard remains fully usable with the saved offline translations. Google may not support every Ugandan language; unsupported phrases automatically use the curated English or local fallback.
 
-The document register stores document type, number, issuing authority, expiry date, verification status, and a file name or secure reference. It does not upload or store the actual document file. Driver records are local to the current browser; use a shared authenticated backend and encrypted document storage before using the system as a multi-user production database.
+The document register stores document type, number, issuing authority, expiry date, verification status, and a file name or secure reference. With the shared API, administrators can upload PDF/image files up to 8 MB; record payloads and files are encrypted at rest with AES-256-GCM and served only after server-side authorization. Static-only mode still stores references only.
 
-This static build provides role-based UI gates and salted password hashes, but it is not a substitute for server-side authorization. A production deployment should move accounts, sessions, driver records, GPS updates, audit logs, and document storage to an authenticated backend with HTTPS, encryption, backups, and server-enforced permissions.
+The shared API now supplies server-side sessions, role enforcement, persistent SQLite storage, encrypted document files, GPS consent checks, and audit logs. A production deployment still needs HTTPS, a strong secret-management process, database backups, monitoring, CI/CD, and a larger managed database when SQLite is no longer sufficient.

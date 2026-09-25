@@ -11,3 +11,5 @@ tmp
 node_modules
 __pycache__
 .pytest_cache
+data
+*.sqlite*
