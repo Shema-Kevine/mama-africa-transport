@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:1.7
 
-# The dashboard is a static application. Nginx serves the compiled site and
-# provides a small health endpoint for Docker orchestration.
+# The same container serves the role-based administrator dashboard and the
+# simplified driver portal. Nginx also provides a health endpoint for
+# Docker orchestration.
 FROM nginx:1.27-alpine
 
 LABEL org.opencontainers.image.title="Mama Africa Transport" \

@@ -71,6 +71,17 @@ curl http://localhost:8080/healthz
 
 Stop or remove the Compose service with `docker compose down`. The container serves the static site; records and GPS reports remain in each visitor's browser `localStorage`, because this project does not include a server database. For production GPS access, serve the container behind HTTPS and use a shared backend for multi-device reporting.
 
+### Containerized driver dashboard
+
+The driver portal is part of the same production container as the administrator dashboard. After signing in with a driver account, the container provides the organized driver overview, account-details panel, trip reports, fuel records, maintenance reports, and privacy-aware location controls. The administrator and driver views are role-separated in the same image, so a separate driver container is not required.
+
+```bash
+docker build -t mama-africa-transport:latest .
+docker run -d --name mama-africa-transport --restart unless-stopped -p 8080:80 mama-africa-transport:latest
+```
+
+Open `http://localhost:8080`, sign in with a driver account created by the administrator, and use the account icon to open the driver's details. The current container is still browser-local: driver-submitted trip, fuel, and maintenance records appear in the administrator workspace when both roles use the same browser origin. Use a shared authenticated backend before deploying separate driver devices.
+
 ## Google Maps search and navigation
 
 The trip form uses Google Maps search and navigation when a Google Maps JavaScript API key is configured. It prefers the current Places API (New) and Routes API, with feature-detected fallbacks for older projects.
@@ -126,7 +137,7 @@ Supported Ugandan plate examples include old private format `UAA001A` and new/di
 
 The driver portal includes a persistent language selector in its Settings card. English, French, Arabic, Portuguese, Hindi, Swahili, Luganda, Runyankole, Acholi, Ateso, Somali, Lugbara, Rukiga, Runyoro, Sango, and Lango are listed. Translated labels and messages use the selected language; phrases without a maintained translation fall back to English. The selected language is stored with the driver account and reused on the next login.
 
-The driver portal also includes an organized per-trip report form. Drivers record trip basics, route, passengers, fare and payment, assigned taxi, odometer and distance, waiting time, expenses, GPS status, incidents, cargo, receipt references, and notes. Drafts save automatically in the current browser. A submitted report is written to the shared `trips` browser key with the driver's identity and assigned taxi, so the administrator sees it on the Trips page, dashboard summaries, collections, Records, and CSV exports. The same report can be edited by the driver until it is replaced by a new submission.
+The driver portal also includes an organized overview with quick links, an account-details panel opened from the account icon, a per-trip report form, a fuel-record form, and a maintenance-report form. Drivers record trip basics, route, passengers, fare and payment, assigned taxi, odometer and distance, waiting time, expenses, GPS status, incidents, cargo, receipt references, notes, fuel fill-ups, service work, parts, labour, and follow-up dates. Drafts save automatically in the current browser. A submitted report is written to the shared `trips`, `fuelRecords`, or `maintenanceRecords` browser key with the driver's identity and assigned taxi, so the administrator sees it on the relevant dashboard pages, collections, Records, and CSV exports. The trip report can be edited by the driver until it is replaced by a new submission.
 
 Because this build is browser-local, the administrator and driver must use the same browser profile/origin for immediate visibility. A real multi-device driver-to-administrator workflow requires an authenticated server API and database; the current localStorage layer is a demo/same-browser implementation.
 
