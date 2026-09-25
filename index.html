@@ -1160,6 +1160,8 @@
     .driver-quick-actions a:hover, .driver-quick-actions a:focus-visible, .driver-portal-nav a:hover, .driver-portal-nav a:focus-visible { background: #d4eadd; outline: 2px solid var(--brand-green); outline-offset: 1px; }
     .driver-portal-nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; padding: 10px; border: 1px solid var(--line); border-radius: 13px; background: #fff; }
     .driver-menu-card { border-top-color: #6b4eff; background: #fbfaff; }
+    .driver-view-navigation { display: flex; justify-content: flex-start; margin: 0 0 16px; }
+    .driver-view-navigation[hidden] { display: none; }
     .driver-menu-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 15px; }
     .driver-menu-button { display: grid; gap: 5px; min-height: 76px; padding: 13px; border: 1px solid #d9d2f2; border-radius: 12px; background: #fff; color: var(--ink); text-align: left; }
     .driver-menu-button strong { color: var(--teal-deep); font-size: 0.9rem; }
@@ -2197,32 +2199,6 @@
     </header>
     <!-- html-validate-disable-next no-multiple-main -->
     <main class="driver-portal-main" aria-label="Driver portal">
-      <section class="driver-welcome">
-        <div>
-          <span class="field-label" data-i18n="driverPortal">Driver portal</span>
-          <h1 id="driver-portal-welcome">Welcome</h1>
-          <p id="driver-portal-welcome-detail">Your private driver workspace.</p>
-        </div>
-        <span id="driver-completion-pill" class="completion-pill">Profile status</span>
-      </section>
-
-      <section class="driver-portal-card full driver-overview-card" id="driver-overview-section" data-driver-view="overview">
-        <div class="page-head">
-          <div>
-            <h2 data-i18n="driverOverview">Driver overview</h2>
-            <p data-i18n="driverOverviewHelp">A quick view of your vehicle, records, and next actions.</p>
-          </div>
-          <span class="driver-overview-date" id="driver-overview-date"></span>
-        </div>
-        <div class="driver-overview-grid" id="driver-overview-summary"></div>
-        <div class="driver-quick-actions" role="group" aria-label="Driver quick actions">
-          <a href="#driver-trip-section" data-driver-jump="driver-trip-section" data-i18n="newTrip">New trip</a>
-          <a href="#driver-fuel-section" data-driver-jump="driver-fuel-section" data-i18n="logFuel">Log fuel</a>
-          <a href="#driver-maintenance-section" data-driver-jump="driver-maintenance-section" data-i18n="reportMaintenance">Report maintenance</a>
-          <a href="#driver-profile-section" data-driver-jump="driver-profile-section" data-i18n="editDetails">Edit details</a>
-        </div>
-      </section>
-
       <section class="driver-portal-card full driver-account-panel" id="driver-account-panel" role="dialog" aria-label="My account details" hidden>
         <div class="page-head">
           <div>
@@ -2232,7 +2208,6 @@
           <button type="button" id="driver-account-close" class="btn-secondary" data-i18n="close">Close</button>
         </div>
         <div id="driver-account-details" class="driver-account-details"></div>
-        <button type="button" id="driver-account-edit" class="btn-primary" data-i18n="editProfileDetails">Edit profile details</button>
       </section>
 
       <section class="driver-portal-card full driver-menu-card" id="driver-menu-card">
@@ -2243,44 +2218,18 @@
           </div>
         </div>
         <div class="driver-menu-grid" role="group" aria-label="Driver actions">
-          <button type="button" class="driver-menu-button" data-driver-menu-view="overview"><strong data-i18n="menuOverview">Overview</strong><span data-i18n="menuOverviewHelp">See your vehicle and current status.</span></button>
-          <button type="button" class="driver-menu-button" data-driver-menu-view="trip"><strong data-i18n="menuTrip">Record a trip</strong><span data-i18n="menuTripHelp">Enter the trip you are taking.</span></button>
-          <button type="button" class="driver-menu-button" data-driver-menu-view="fuel"><strong data-i18n="menuFuel">Fuel</strong><span data-i18n="menuFuelHelp">Record fuel taken.</span></button>
-          <button type="button" class="driver-menu-button" data-driver-menu-view="maintenance"><strong data-i18n="menuMaintenance">Expenses &amp; maintenance</strong><span data-i18n="menuMaintenanceHelp">Record service, faults, and costs.</span></button>
-          <button type="button" class="driver-menu-button" data-driver-menu-view="details"><strong data-i18n="menuDetails">My details</strong><span data-i18n="menuDetailsHelp">Review and update your information.</span></button>
-          <button type="button" class="driver-menu-button" data-driver-menu-view="location"><strong data-i18n="menuLocation">Location</strong><span data-i18n="menuLocationHelp">Control GPS sharing.</span></button>
-          <button type="button" class="driver-menu-button" data-driver-menu-view="settings"><strong data-i18n="menuSettings">Privacy &amp; settings</strong><span data-i18n="menuSettingsHelp">Language and privacy controls.</span></button>
+          <button type="button" class="driver-menu-button" data-driver-menu-view="trip" aria-pressed="false"><strong data-i18n="menuTrip">Record a trip</strong><span data-i18n="menuTripHelp">Enter the trip you are taking.</span></button>
+          <button type="button" class="driver-menu-button" data-driver-menu-view="fuel" aria-pressed="false"><strong data-i18n="menuFuel">Fuel</strong><span data-i18n="menuFuelHelp">Record fuel taken.</span></button>
+          <button type="button" class="driver-menu-button" data-driver-menu-view="maintenance" aria-pressed="false"><strong data-i18n="menuMaintenance">Expenses &amp; maintenance</strong><span data-i18n="menuMaintenanceHelp">Record service, faults, and costs.</span></button>
         </div>
       </section>
 
+      <div class="driver-view-navigation" id="driver-view-navigation" hidden>
+        <button type="button" id="driver-close-view" class="btn-secondary" data-i18n="backToActions">Back to actions</button>
+      </div>
+
       <div class="driver-portal-grid">
-        <section class="driver-portal-card" data-driver-view="overview">
-          <h2 data-i18n="yourProfile">Your profile</h2>
-          <p data-i18n="profilePrivacyText">Only you and the authorized administrator can view this information.</p>
-          <div id="driver-portal-profile-summary" class="driver-portal-summary"></div>
-        </section>
-
-        <section class="driver-portal-card" data-driver-view="overview">
-          <h2 data-i18n="assignedTaxi">Your assigned taxi</h2>
-          <p data-i18n="assignedTaxiHelp">The administrator links your account to one fleet vehicle.</p>
-          <div id="driver-portal-taxi-summary" class="driver-portal-summary"></div>
-        </section>
-
-        <section class="driver-portal-card" id="driver-location-section" data-driver-view="location">
-          <h2 data-i18n="locationSharing">Location sharing</h2>
-          <div id="driver-portal-location-permission" class="driver-location-permission">
-            <h3 id="driver-portal-location-title">Location permission not requested</h3>
-            <p data-i18n="locationOptInText">Your location is requested only after you tap the button below. You can stop sharing at any time.</p>
-            <div class="driver-location-actions">
-              <button type="button" id="driver-portal-location-request" class="btn-primary" data-i18n="allowLocation">Allow location sharing</button>
-              <button type="button" id="driver-portal-location-live" class="btn-secondary" disabled data-i18n="startLive">Start live sharing</button>
-              <button type="button" id="driver-portal-location-stop" class="btn-secondary" disabled data-i18n="stopSharing">Stop sharing</button>
-            </div>
-            <p id="driver-portal-location-status" role="status" aria-live="polite">No location has been requested.</p>
-          </div>
-        </section>
-
-        <section class="driver-portal-card full driver-trip-card" id="driver-trip-section" data-driver-view="trip">
+        <section class="driver-portal-card full driver-trip-card" id="driver-trip-section" data-driver-view="trip" hidden>
           <div class="page-head">
             <div>
               <h2 data-i18n="driverTrips">My trip reports</h2>
@@ -2486,7 +2435,7 @@
           <div id="driver-trip-list" class="driver-trip-list"></div>
         </section>
 
-        <section class="driver-portal-card full driver-ops-card driver-fuel-card" id="driver-fuel-section" data-driver-view="fuel">
+        <section class="driver-portal-card full driver-ops-card driver-fuel-card" id="driver-fuel-section" data-driver-view="fuel" hidden>
           <div class="page-head">
             <div>
               <h2 data-i18n="driverFuel">Fuel records</h2>
@@ -2531,7 +2480,7 @@
           <div id="driver-fuel-list" class="driver-trip-list"></div>
         </section>
 
-        <section class="driver-portal-card full driver-ops-card driver-maintenance-card" id="driver-maintenance-section" data-driver-view="maintenance">
+        <section class="driver-portal-card full driver-ops-card driver-maintenance-card" id="driver-maintenance-section" data-driver-view="maintenance" hidden>
           <div class="page-head">
             <div>
               <h2 data-i18n="driverMaintenance">Maintenance reports</h2>
@@ -2575,104 +2524,7 @@
           <div id="driver-maintenance-list" class="driver-trip-list"></div>
         </section>
 
-        <section class="driver-portal-card driver-privacy-card" id="driver-privacy-section" data-driver-view="settings">
-          <h2 data-i18n="yourPrivacy">Your privacy</h2>
-          <p data-i18n="privacyBody">Mama Africa Transport keeps this static dashboard in your browser. Please use a private device and log out when finished.</p>
-          <ul>
-            <li data-i18n="privacyBullet1">Your location is opt-in and is not requested on page load.</li>
-            <li data-i18n="privacyBullet2">Your driver record is linked to your assigned taxi for operational safety.</li>
-            <li data-i18n="privacyBullet3">Document fields store references and verification details, not uploaded files.</li>
-            <li data-i18n="privacyBullet4">Administrator access is required to view or change your account.</li>
-          </ul>
-        </section>
 
-        <section class="driver-portal-card driver-settings-card" id="driver-settings-section" data-driver-view="settings">
-          <h2 data-i18n="settings">Settings</h2>
-          <div>
-            <label for="driver-language-select" data-i18n="language">Language</label>
-            <select id="driver-language-select"></select>
-            <p class="field-hint" data-i18n="languageHelp">Choose the language used throughout your driver workspace. Other phrases fall back to English when a translation is unavailable.</p>
-            <p id="driver-translation-status" class="field-hint" data-i18n="translationStatusReady" aria-live="polite">Saved translations are ready. Google-assisted translations load when the translation service is configured.</p>
-          </div>
-        </section>
-
-        <section class="driver-portal-card full" id="driver-profile-section" data-driver-view="details">
-          <h2 data-i18n="completeInfo">Complete your information</h2>
-          <p id="driver-portal-form-hint">Complete the required fields so the administrator has the information needed to operate the fleet safely.</p>
-          <form id="driver-portal-profile-form" class="driver-portal-form">
-            <input type="hidden" id="driver-portal-driver-id">
-            <div class="grid">
-              <div>
-                <label for="driver-portal-phone" data-i18n="phone">Phone</label>
-                <input type="tel" id="driver-portal-phone" required maxlength="10" pattern="0[0-9]{9}" placeholder="0758387804">
-              </div>
-              <div>
-                <label for="driver-portal-email" data-i18n="email">Email (optional)</label>
-                <input type="email" id="driver-portal-email" maxlength="120" placeholder="driver@example.com">
-              </div>
-              <div>
-                <label for="driver-portal-residence" data-i18n="residence">Residence / home address</label>
-                <input type="text" id="driver-portal-residence" required maxlength="160" placeholder="Nakasero, Kampala">
-              </div>
-              <div>
-                <label for="driver-portal-nin" data-i18n="nationalId">National ID (NIN)</label>
-                <input type="text" id="driver-portal-nin" required maxlength="14" pattern="[0-9]{14}" inputmode="numeric" placeholder="12345678901234" class="numeric-input">
-              </div>
-              <div>
-                <label for="driver-portal-dob" data-i18n="dateOfBirth">Date of birth</label>
-                <input type="date" id="driver-portal-dob" required>
-              </div>
-              <div>
-                <label for="driver-portal-nationality" data-i18n="nationality">Nationality</label>
-                <input type="text" id="driver-portal-nationality" required maxlength="60" value="Ugandan">
-              </div>
-            </div>
-
-            <h3>Next of kin</h3>
-            <div class="grid">
-              <div>
-                <label for="driver-portal-nok-name" data-i18n="fullName">Full name</label>
-                <input type="text" id="driver-portal-nok-name" required maxlength="60" placeholder="Jane Doe">
-              </div>
-              <div>
-                <label for="driver-portal-nok-relationship" data-i18n="relationship">Relationship</label>
-                <input type="text" id="driver-portal-nok-relationship" required maxlength="40" placeholder="Spouse / parent / sibling">
-              </div>
-              <div>
-                <label for="driver-portal-nok-phone" data-i18n="telephone">Telephone</label>
-                <input type="tel" id="driver-portal-nok-phone" required maxlength="20" pattern="[0-9\+\(\)\s\-]{7,20}" placeholder="0758387804">
-              </div>
-              <div>
-                <label for="driver-portal-nok-email" data-i18n="email">Email (optional)</label>
-                <input type="email" id="driver-portal-nok-email" maxlength="120" placeholder="next-of-kin@example.com">
-              </div>
-              <div>
-                <label for="driver-portal-nok-residence" data-i18n="residence">Residence / address</label>
-                <input type="text" id="driver-portal-nok-residence" required maxlength="160" placeholder="Ntinda, Kampala">
-              </div>
-            </div>
-
-            <h3 data-i18n="myDocuments">My registered documents</h3>
-            <p class="field-hint" data-i18n="documentsHelp">Add the documents your administrator needs to verify. This form records references, not files.</p>
-            <div id="driver-portal-document-list" class="document-list"></div>
-            <button type="button" id="driver-portal-add-document" class="btn-secondary" data-i18n="addDocument">Add document</button>
-            <label class="privacy-consent"><input type="checkbox" id="driver-portal-consent" required><span data-i18n="consentText">I confirm these details are accurate and I consent to the administrator using them for fleet and safety operations.</span></label>
-            <div class="driver-portal-form-actions"><button type="submit" class="btn-primary" data-i18n="saveDetails">Save my details</button><span class="field-hint" data-i18n="requiredFields">Required fields are marked by the form.</span></div>
-          </form>
-        </section>
-
-        <section id="driver-portal-password-card" class="driver-portal-card full driver-password-card" data-driver-view="details" hidden>
-          <h2 data-i18n="changePassword">Change your login password</h2>
-          <p data-i18n="passwordIntro">Your administrator created a temporary password. Change it before continuing.</p>
-          <form id="driver-portal-password-form" class="driver-portal-form">
-            <div class="grid">
-              <div><label for="driver-password-current" data-i18n="currentPassword">Current password</label><input type="password" id="driver-password-current" required autocomplete="current-password"></div>
-              <div><label for="driver-password-new" data-i18n="newPassword">New password</label><input type="password" id="driver-password-new" required minlength="10" maxlength="128" autocomplete="new-password"></div>
-              <div><label for="driver-password-confirm" data-i18n="confirmNewPassword">Confirm new password</label><input type="password" id="driver-password-confirm" required minlength="10" maxlength="128" autocomplete="new-password"></div>
-            </div>
-            <div class="driver-portal-form-actions"><button type="submit" class="btn-primary" data-i18n="updatePassword">Update password</button></div>
-          </form>
-        </section>
       </div>
     </main>
   </div>
@@ -2717,7 +2569,7 @@
 
     const DRIVER_LANGUAGES = {
       en: { label: 'English', nativeName: 'English', dir: 'ltr', strings: {
-        logout: 'Log out', driverWorkspace: 'Driver workspace', driverPortal: 'Driver portal', authBrandLine: 'One private workspace for fleet administrators and drivers.', welcomeKicker: 'WELCOME TO MAMA AFRICA TRANSPORT', welcomeBack: 'Welcome back', chooseRoleIntro: 'Choose your role so we can take you to the right workspace.', adminLoginTitle: 'Administrator access', adminLoginDescription: 'Use this account for fleet operations, driver records, reports, and account setup.', adminLoginStep1: 'Sign in with the administrator username and password configured for this workspace.', adminLoginStep2: 'Manage taxis, drivers, trips, fuel, maintenance, and records.', adminLoginStep3: 'Create driver portal accounts from the Drivers page.', driverLoginTitle: 'Driver access', driverLoginDescription: 'Use the username and temporary password supplied by your administrator.', driverLoginStep1: 'Complete any missing profile and next-of-kin details.', driverLoginStep2: 'Review your documents and assigned taxi details.', driverLoginStep3: 'Tap Allow location sharing only when you choose to share your position.', needAccount: 'Need an account?', needAccountText: 'Ask the administrator for your username and temporary password. Driver accounts are created by the administrator.', adminUsernamePlaceholder: 'Administrator username', driverUsernamePlaceholder: 'Username supplied by your administrator', adminPasswordPlaceholder: 'Administrator password', driverPasswordPlaceholder: 'Temporary password supplied by your administrator', privacyByDesign: 'Private by design.', privacyByDesignText: 'Driver records are only shown to an authenticated administrator.', locationOptIn: 'Location is opt-in.', locationOptInText: 'A driver must tap Allow before their device location is requested.', clearSeparation: 'Clear separation.', clearSeparationText: 'Drivers see a simplified portal, not fleet-wide records or other drivers.', administratorTitle: 'Create administrator access', administratorIntro: 'First-time setup. Create the administrator account that will manage taxis, drivers, and records.', username: 'Username', password: 'Password', confirmPassword: 'Confirm password', administratorPrivacy: 'I understand this browser stores account and operational data locally and that I am responsible for protecting access to this device.', createAdministrator: 'Create administrator', signIn: 'Sign in', signInTitle: 'Sign in to your workspace', signInIntro: 'Use the administrator account or the login details provided by your administrator.', accountType: 'Account type', administrator: 'Administrator', administratorHelp: 'Manage the full fleet and driver database.', driver: 'Driver', driverHelp: 'Use the simplified driver portal.', loginPrivacy: 'I understand my account is private to this browser and that administrator-created driver records may contain personal information.', locationFootnote: 'Location is never requested automatically. A driver must choose Allow location sharing in the driver portal.', welcomeFallback: 'Your private driver workspace.', profileCompleteHelp: 'Your administrator can see the information needed for safe fleet operations.', profileIncompleteHelp: 'Complete {count} required detail{countText} before your next shift.', yourProfile: 'Your profile', profilePrivacyText: 'Only you and the authorized administrator can view this information.', assignedTaxi: 'Your assigned taxi', assignedTaxiHelp: 'The administrator links your account to one fleet vehicle.', locationSharing: 'Location sharing', locationNotRequested: 'Location permission not requested', locationOptInText: 'Your location is requested only after you tap the button below. You can stop sharing at any time.', allowLocation: 'Allow location sharing', startLive: 'Start live sharing', stopSharing: 'Stop sharing', noLocationRequested: 'No location has been requested.', locationPermissionGranted: 'Location permission granted · no position yet', locationGrantedText: 'You have granted permission. Tap Allow location sharing to send a position.', yourPrivacy: 'Your privacy', privacyBody: 'Mama Africa Transport keeps this static dashboard in your browser. Please use a private device and log out when finished.', privacyBullet1: 'Your location is opt-in and is not requested on page load.', privacyBullet2: 'Your driver record is linked to your assigned taxi for operational safety.', privacyBullet3: 'Document fields store references and verification details, not uploaded files.', privacyBullet4: 'Administrator access is required to view or change your account.', completeInfo: 'Complete your information', completeInfoHelp: 'Complete the required fields so the administrator has the information needed to operate the fleet safely.', reviewInfo: 'Review your information below and update it whenever something changes.', requiredNow: 'Required now: {fields}.', settings: 'Settings', language: 'Language', languageHelp: 'Choose the language used throughout your driver workspace. Other phrases fall back to English when a translation is unavailable.', translationStatusReady: 'Saved translations are ready. Google-assisted translations load when the translation service is configured.', translationStatusLoading: 'Loading natural Google translations…', translationStatusLoaded: 'Natural Google translations loaded.', translationStatusOffline: 'Using the saved offline translation for now.', profileComplete: 'Profile complete', driverTrips: 'My trip reports', driverTripsHelp: 'Record each trip in its sections. Saving a report adds it to the administrator trips workspace in this browser.', tripBasics: 'Trip basics', date: 'Date', startTime: 'Start time', endTime: 'End time (optional)', tripPurpose: 'Trip purpose', routeType: 'Route type', tripStatus: 'Trip status', routeAndPassengers: 'Route and passengers', pickup: 'Pickup', dropoff: 'Drop-off', passengersOnBoard: 'Passengers on board', farePerPassenger: 'Fare per passenger (UGX)', paymentMethod: 'Payment method', paymentStatus: 'Payment status', vehicleAndDistance: 'Vehicle and distance', startOdometer: 'Start odometer (km)', endOdometer: 'End odometer (km)', distanceKm: 'Distance (km)', distanceHelp: 'Calculated from the odometer when both readings are entered; otherwise enter it manually.', waitingMinutes: 'Waiting time (minutes)', costsAndSafety: 'Costs and safety', toll: 'Toll (UGX)', parking: 'Parking (UGX)', otherExpense: 'Other trip expense (UGX)', incident: 'Incident or complaint', incidentDetails: 'Incident details (optional)', receiptReference: 'Receipt or reference (optional)', cargoDescription: 'Cargo / load description (optional)', driverNotes: 'Driver notes', driverNotesHelp: 'Add route, passenger, vehicle, or handover notes for the administrator.', grossFare: 'Gross fare', tripExpenses: 'Trip expenses', estimatedNet: 'Estimated net', saveTripReport: 'Save trip report', clearTripForm: 'Clear form', recentDriverTrips: 'Recent trip reports', tripReport: 'Trip report', tripReportCount: '{count} reports', tripReportCountOne: '1 report', noDriverTrips: 'No trip reports yet. Your saved reports will appear here.', driverSubmitted: 'Driver submitted', administratorSubmitted: 'Administrator record', unknownTaxi: 'Unknown taxi', editTripReport: 'Edit report', tripDraftRestored: 'Draft restored from this browser.', tripDraftReady: 'Draft saves automatically in this browser.', tripDraftSaving: 'Saving draft…', tripDraftSaved: 'Draft saved in this browser.', tripEditing: 'Editing a saved trip report.', locationNotShared: 'Not shared', driverTripNoTaxi: 'An active assigned taxi is required before you can save a trip report.', pickupDropoffDifferent: 'Pickup and drop-off must be different.', tripTimeOrder: 'End time must be after the start time.', odometerOrder: 'End odometer must be greater than or equal to the start odometer.', tripEditNotAllowed: 'You can only edit trip reports that you submitted.', tripReportSaved: 'Trip report saved for the administrator.', tripReportSaveError: 'Could not save the trip report. Check browser storage and try again.', tripFormCleared: 'Trip form cleared.', driverRouteHelp: 'Choose pickup and drop-off results to calculate route distance with Google Maps or the Uganda fallback.', useLatestFuelPrice: 'Use latest available price', fuelPriceUnavailable: 'No current price is available; enter the pump rate manually.', stationPrice: 'Station price', ugandaAveragePrice: 'Uganda average price', ugandaPlaceOnly: 'Choose a place inside Uganda.', googleResults: 'Google results', noGoogleResults: 'No Google result found. You can still enter the place manually.', googleSearchUnavailable: 'Google search is unavailable; enter the place manually.', googleFuelStationSelected: 'Google fuel station selected. You can edit the station name if needed.', googleProviderSelected: 'Google service provider selected. You can edit the contact details if needed.', fuelRecordCount: '{count} records', fuelRecordCountOne: '1 record', maintenanceRecordCount: '{count} records', maintenanceRecordCountOne: '1 record', myAccount: 'My account', driverOverview: 'Driver overview', driverOverviewHelp: 'A quick view of your vehicle, records, and next actions.', newTrip: 'New trip', logFuel: 'Log fuel', reportMaintenance: 'Report maintenance', editDetails: 'Edit details', accountDetails: 'My account details', accountDetailsHelp: 'Your identity and assigned vehicle, kept together for quick reference.', close: 'Close', editProfileDetails: 'Edit profile details', overview: 'Overview', trips: 'Trips', fuel: 'Fuel', maintenance: 'Maintenance', myDetails: 'My details', chooseAction: 'What do you need to do?', chooseActionHelp: 'Choose one container. Only the relevant details will be shown.', menuOverview: 'Overview', menuOverviewHelp: 'See your vehicle and current status.', menuTrip: 'Record a trip', menuTripHelp: 'Enter the trip you are taking.', menuFuel: 'Fuel', menuFuelHelp: 'Record fuel taken.', menuMaintenance: 'Expenses & maintenance', menuMaintenanceHelp: 'Record service, faults, and costs.', menuDetails: 'My details', menuDetailsHelp: 'Review and update your information.', menuLocation: 'Location', menuLocationHelp: 'Control GPS sharing.', menuSettings: 'Privacy & settings', menuSettingsHelp: 'Language and privacy controls.', profileIncomplete: 'Profile incomplete', driverFuel: 'Fuel records', driverFuelHelp: 'Record every fill-up so the administrator can reconcile fuel use and costs.', fuelEntry: 'Fuel entry', time: 'Time', fuelStation: 'Fuel station', fuelType: 'Fuel type', litres: 'Litres', pricePerLitre: 'Price per litre (UGX)', fuelAmount: 'Calculated amount (UGX)', odometerAtFill: 'Odometer at fill (km)', fuelNotes: 'Fuel notes (optional)', saveFuelRecord: 'Save fuel record', clearForm: 'Clear form', recentFuelRecords: 'Recent fuel records', fuelRecord: 'Fuel record', noDriverFuel: 'No fuel records yet. Your fill-ups will appear here.', fuelAmountRequired: 'Enter litres and a price per litre greater than zero.', fuelSaveError: 'Could not save the fuel record. Check browser storage and try again.', fuelReportSaved: 'Fuel record saved for the administrator.', driverMaintenance: 'Maintenance reports', driverMaintenanceHelp: 'Report service, faults, and costs while the details are fresh.', maintenanceEntry: 'Maintenance entry', serviceType: 'Service or fault type', odometerAtService: 'Odometer at service (km)', nextServiceDate: 'Next service date (optional)', serviceProvider: 'Service provider', providerPhone: 'Provider phone (optional)', partsCost: 'Parts cost (UGX)', labourCost: 'Labour cost (UGX)', maintenanceOtherCost: 'Other cost (UGX)', maintenanceTotal: 'Calculated total (UGX)', workPerformed: 'Work performed or fault details', maintenanceNotes: 'Maintenance notes (optional)', saveMaintenanceRecord: 'Save maintenance record', recentMaintenanceRecords: 'Recent maintenance records', maintenanceRecord: 'Maintenance record', noDriverMaintenance: 'No maintenance records yet. Your service reports will appear here.', maintenanceCostRequired: 'Enter at least one maintenance cost greater than zero.', maintenanceSaveError: 'Could not save the maintenance record. Check browser storage and try again.', maintenanceReportSaved: 'Maintenance record saved for the administrator.', noTaxiAssigned: 'No taxi assigned yet', contactAdmin: 'Contact the administrator', nextOfKin: 'Next of kin', myDocuments: 'My registered documents', documentsHelp: 'Add the documents your administrator needs to verify. This form records references, not files.', addDocument: 'Add document', consentText: 'I confirm these details are accurate and I consent to the administrator using them for fleet and safety operations.', saveDetails: 'Save my details', requiredFields: 'Required fields are marked by the form.', changePassword: 'Change your login password', passwordIntro: 'Your administrator created a temporary password. Change it before continuing.', currentPassword: 'Current password', newPassword: 'New password', confirmNewPassword: 'Confirm new password', updatePassword: 'Update password', welcomeDriver: 'Welcome, {name}', name: 'Name', numberPlate: 'Number plate', vehicle: 'Vehicle', status: 'Status', nationalId: 'National ID', nextOfKinName: 'Next of kin name', nextOfKinRelationship: 'Next of kin relationship', nextOfKinPhone: 'Next of kin phone', nextOfKinResidence: 'Next of kin residence', accountNotLinked: 'Driver account not linked', locationNoTaxi: 'The administrator must assign a taxi before location sharing can be enabled.', lastLocationShared: 'Last location shared · taxi is {status}', locationCoordinates: 'Coordinates: {coordinates} · Last update: {updated}', phone: 'Phone', email: 'Email', residence: 'Residence / home address', dateOfBirth: 'Date of birth', nationality: 'Nationality', fullName: 'Full name', relationship: 'Relationship', telephone: 'Telephone', profileStatusComplete: 'Profile complete', profileStatusIncomplete: '{count} detail{countText} to complete', locationNoTaxi: 'The administrator must assign a taxi before location sharing can be enabled.', locationShared: 'Location shared with the administrator', locationLiveActive: 'Live location sharing is active.', locationLiveStopped: 'Live sharing stopped. Your last shared position is still available to the administrator.', noDocuments: 'No documents have been registered for this driver.', passwordChangeRequired: 'Password change required', privacyAccepted: 'Accepted', privacyPending: 'Pending', accountNotCreated: 'Not created', noPasswordChange: 'No password change required', detailsSaved: 'Your driver details were saved', passwordUpdated: 'Password updated', locationDenied: 'Location permission was declined. You can enable it later in browser settings.', locationUnavailable: 'A GPS position could not be determined right now.', locationTimeout: 'The location request timed out. Try again when you have a GPS signal.', locationRequesting: 'Requesting your permission…', locationSaveError: 'The location could not be saved in this browser.', accountMissing: 'This driver login is not linked to a driver record. Contact the administrator.'
+        logout: 'Log out', driverWorkspace: 'Driver workspace', driverPortal: 'Driver portal', authBrandLine: 'One private workspace for fleet administrators and drivers.', welcomeKicker: 'WELCOME TO MAMA AFRICA TRANSPORT', welcomeBack: 'Welcome back', chooseRoleIntro: 'Choose your role so we can take you to the right workspace.', adminLoginTitle: 'Administrator access', adminLoginDescription: 'Use this account for fleet operations, driver records, reports, and account setup.', adminLoginStep1: 'Sign in with the administrator username and password configured for this workspace.', adminLoginStep2: 'Manage taxis, drivers, trips, fuel, maintenance, and records.', adminLoginStep3: 'Create driver portal accounts from the Drivers page.', driverLoginTitle: 'Driver access', driverLoginDescription: 'Use the username and temporary password supplied by your administrator.', driverLoginStep1: 'Choose Record a trip, Fuel, or Expenses & maintenance from the action menu.', driverLoginStep2: 'Only the selected view opens, so you can focus on one task.', driverLoginStep3: 'Your account is managed by the administrator; contact them for changes.', needAccount: 'Need an account?', needAccountText: 'Ask the administrator for your username and temporary password. Driver accounts are created by the administrator.', adminUsernamePlaceholder: 'Administrator username', driverUsernamePlaceholder: 'Username supplied by your administrator', adminPasswordPlaceholder: 'Administrator password', driverPasswordPlaceholder: 'Temporary password supplied by your administrator', privacyByDesign: 'Private by design.', privacyByDesignText: 'Driver records are only shown to an authenticated administrator.', locationOptIn: 'Location is opt-in.', locationOptInText: 'A driver must tap Allow before their device location is requested.', clearSeparation: 'Clear separation.', clearSeparationText: 'Drivers see a simplified portal, not fleet-wide records or other drivers.', administratorTitle: 'Create administrator access', administratorIntro: 'First-time setup. Create the administrator account that will manage taxis, drivers, and records.', username: 'Username', password: 'Password', confirmPassword: 'Confirm password', administratorPrivacy: 'I understand this browser stores account and operational data locally and that I am responsible for protecting access to this device.', createAdministrator: 'Create administrator', signIn: 'Sign in', signInTitle: 'Sign in to your workspace', signInIntro: 'Use the administrator account or the login details provided by your administrator.', accountType: 'Account type', administrator: 'Administrator', administratorHelp: 'Manage the full fleet and driver database.', driver: 'Driver', driverHelp: 'Use the simplified driver portal.', loginPrivacy: 'I understand my account is private to this browser and that administrator-created driver records may contain personal information.', locationFootnote: 'Location is never requested automatically. A driver must choose Allow location sharing in the driver portal.', welcomeFallback: 'Your private driver workspace.', profileCompleteHelp: 'Your administrator can see the information needed for safe fleet operations.', profileIncompleteHelp: 'Complete {count} required detail{countText} before your next shift.', yourProfile: 'Your profile', profilePrivacyText: 'Only you and the authorized administrator can view this information.', assignedTaxi: 'Your assigned taxi', assignedTaxiHelp: 'The administrator links your account to one fleet vehicle.', locationSharing: 'Location sharing', locationNotRequested: 'Location permission not requested', locationOptInText: 'Your location is requested only after you tap the button below. You can stop sharing at any time.', allowLocation: 'Allow location sharing', startLive: 'Start live sharing', stopSharing: 'Stop sharing', noLocationRequested: 'No location has been requested.', locationPermissionGranted: 'Location permission granted · no position yet', locationGrantedText: 'You have granted permission. Tap Allow location sharing to send a position.', yourPrivacy: 'Your privacy', privacyBody: 'Mama Africa Transport keeps this static dashboard in your browser. Please use a private device and log out when finished.', privacyBullet1: 'Your location is opt-in and is not requested on page load.', privacyBullet2: 'Your driver record is linked to your assigned taxi for operational safety.', privacyBullet3: 'Document fields store references and verification details, not uploaded files.', privacyBullet4: 'Administrator access is required to view or change your account.', completeInfo: 'Complete your information', completeInfoHelp: 'Complete the required fields so the administrator has the information needed to operate the fleet safely.', reviewInfo: 'Review your information below and update it whenever something changes.', requiredNow: 'Required now: {fields}.', settings: 'Settings', language: 'Language', languageHelp: 'Choose the language used throughout your driver workspace. Other phrases fall back to English when a translation is unavailable.', translationStatusReady: 'Saved translations are ready. Google-assisted translations load when the translation service is configured.', translationStatusLoading: 'Loading natural Google translations…', translationStatusLoaded: 'Natural Google translations loaded.', translationStatusOffline: 'Using the saved offline translation for now.', profileComplete: 'Profile complete', driverTrips: 'My trip reports', driverTripsHelp: 'Record each trip in its sections. Saving a report adds it to the administrator trips workspace in this browser.', tripBasics: 'Trip basics', date: 'Date', startTime: 'Start time', endTime: 'End time (optional)', tripPurpose: 'Trip purpose', routeType: 'Route type', tripStatus: 'Trip status', routeAndPassengers: 'Route and passengers', pickup: 'Pickup', dropoff: 'Drop-off', passengersOnBoard: 'Passengers on board', farePerPassenger: 'Fare per passenger (UGX)', paymentMethod: 'Payment method', paymentStatus: 'Payment status', vehicleAndDistance: 'Vehicle and distance', startOdometer: 'Start odometer (km)', endOdometer: 'End odometer (km)', distanceKm: 'Distance (km)', distanceHelp: 'Calculated from the odometer when both readings are entered; otherwise enter it manually.', waitingMinutes: 'Waiting time (minutes)', costsAndSafety: 'Costs and safety', toll: 'Toll (UGX)', parking: 'Parking (UGX)', otherExpense: 'Other trip expense (UGX)', incident: 'Incident or complaint', incidentDetails: 'Incident details (optional)', receiptReference: 'Receipt or reference (optional)', cargoDescription: 'Cargo / load description (optional)', driverNotes: 'Driver notes', driverNotesHelp: 'Add route, passenger, vehicle, or handover notes for the administrator.', grossFare: 'Gross fare', tripExpenses: 'Trip expenses', estimatedNet: 'Estimated net', saveTripReport: 'Save trip report', clearTripForm: 'Clear form', recentDriverTrips: 'Recent trip reports', tripReport: 'Trip report', tripReportCount: '{count} reports', tripReportCountOne: '1 report', noDriverTrips: 'No trip reports yet. Your saved reports will appear here.', driverSubmitted: 'Driver submitted', administratorSubmitted: 'Administrator record', unknownTaxi: 'Unknown taxi', editTripReport: 'Edit report', tripDraftRestored: 'Draft restored from this browser.', tripDraftReady: 'Draft saves automatically in this browser.', tripDraftSaving: 'Saving draft…', tripDraftSaved: 'Draft saved in this browser.', tripEditing: 'Editing a saved trip report.', locationNotShared: 'Not shared', driverTripNoTaxi: 'An active assigned taxi is required before you can save a trip report.', pickupDropoffDifferent: 'Pickup and drop-off must be different.', tripTimeOrder: 'End time must be after the start time.', odometerOrder: 'End odometer must be greater than or equal to the start odometer.', tripEditNotAllowed: 'You can only edit trip reports that you submitted.', tripReportSaved: 'Trip report saved for the administrator.', tripReportSaveError: 'Could not save the trip report. Check browser storage and try again.', tripFormCleared: 'Trip form cleared.', driverRouteHelp: 'Choose pickup and drop-off results to calculate route distance with Google Maps or the Uganda fallback.', useLatestFuelPrice: 'Use latest available price', fuelPriceUnavailable: 'No current price is available; enter the pump rate manually.', stationPrice: 'Station price', ugandaAveragePrice: 'Uganda average price', ugandaPlaceOnly: 'Choose a place inside Uganda.', googleResults: 'Google results', noGoogleResults: 'No Google result found. You can still enter the place manually.', googleSearchUnavailable: 'Google search is unavailable; enter the place manually.', googleFuelStationSelected: 'Google fuel station selected. You can edit the station name if needed.', googleProviderSelected: 'Google service provider selected. You can edit the contact details if needed.', fuelRecordCount: '{count} records', fuelRecordCountOne: '1 record', maintenanceRecordCount: '{count} records', maintenanceRecordCountOne: '1 record', myAccount: 'My account', driverOverview: 'Driver overview', driverOverviewHelp: 'A quick view of your vehicle, records, and next actions.', newTrip: 'New trip', logFuel: 'Log fuel', reportMaintenance: 'Report maintenance', editDetails: 'Edit details', accountDetails: 'My account details', accountDetailsHelp: 'Your identity and assigned vehicle, kept together for quick reference.', close: 'Close', editProfileDetails: 'Edit profile details', overview: 'Overview', trips: 'Trips', fuel: 'Fuel', maintenance: 'Maintenance', myDetails: 'My details', chooseAction: 'What do you need to do?', chooseActionHelp: 'Choose one container. Only the relevant details will be shown.', backToActions: 'Back to actions', closeCurrentView: 'Close current view', menuOverview: 'Overview', menuOverviewHelp: 'See your vehicle and current status.', menuTrip: 'Record a trip', menuTripHelp: 'Enter the trip you are taking.', menuFuel: 'Fuel', menuFuelHelp: 'Record fuel taken.', menuMaintenance: 'Expenses & maintenance', menuMaintenanceHelp: 'Record service, faults, and costs.', menuDetails: 'My details', menuDetailsHelp: 'Review and update your information.', menuLocation: 'Location', menuLocationHelp: 'Control GPS sharing.', menuSettings: 'Privacy & settings', menuSettingsHelp: 'Language and privacy controls.', profileIncomplete: 'Profile incomplete', driverFuel: 'Fuel records', driverFuelHelp: 'Record every fill-up so the administrator can reconcile fuel use and costs.', fuelEntry: 'Fuel entry', time: 'Time', fuelStation: 'Fuel station', fuelType: 'Fuel type', litres: 'Litres', pricePerLitre: 'Price per litre (UGX)', fuelAmount: 'Calculated amount (UGX)', odometerAtFill: 'Odometer at fill (km)', fuelNotes: 'Fuel notes (optional)', saveFuelRecord: 'Save fuel record', clearForm: 'Clear form', recentFuelRecords: 'Recent fuel records', fuelRecord: 'Fuel record', noDriverFuel: 'No fuel records yet. Your fill-ups will appear here.', fuelAmountRequired: 'Enter litres and a price per litre greater than zero.', fuelSaveError: 'Could not save the fuel record. Check browser storage and try again.', fuelReportSaved: 'Fuel record saved for the administrator.', driverMaintenance: 'Maintenance reports', driverMaintenanceHelp: 'Report service, faults, and costs while the details are fresh.', maintenanceEntry: 'Maintenance entry', serviceType: 'Service or fault type', odometerAtService: 'Odometer at service (km)', nextServiceDate: 'Next service date (optional)', serviceProvider: 'Service provider', providerPhone: 'Provider phone (optional)', partsCost: 'Parts cost (UGX)', labourCost: 'Labour cost (UGX)', maintenanceOtherCost: 'Other cost (UGX)', maintenanceTotal: 'Calculated total (UGX)', workPerformed: 'Work performed or fault details', maintenanceNotes: 'Maintenance notes (optional)', saveMaintenanceRecord: 'Save maintenance record', recentMaintenanceRecords: 'Recent maintenance records', maintenanceRecord: 'Maintenance record', noDriverMaintenance: 'No maintenance records yet. Your service reports will appear here.', maintenanceCostRequired: 'Enter at least one maintenance cost greater than zero.', maintenanceSaveError: 'Could not save the maintenance record. Check browser storage and try again.', maintenanceReportSaved: 'Maintenance record saved for the administrator.', noTaxiAssigned: 'No taxi assigned yet', contactAdmin: 'Contact the administrator', nextOfKin: 'Next of kin', myDocuments: 'My registered documents', documentsHelp: 'Add the documents your administrator needs to verify. This form records references, not files.', addDocument: 'Add document', consentText: 'I confirm these details are accurate and I consent to the administrator using them for fleet and safety operations.', saveDetails: 'Save my details', requiredFields: 'Required fields are marked by the form.', changePassword: 'Change your login password', passwordIntro: 'Your administrator created a temporary password. Change it before continuing.', currentPassword: 'Current password', newPassword: 'New password', confirmNewPassword: 'Confirm new password', updatePassword: 'Update password', welcomeDriver: 'Welcome, {name}', name: 'Name', numberPlate: 'Number plate', vehicle: 'Vehicle', status: 'Status', nationalId: 'National ID', nextOfKinName: 'Next of kin name', nextOfKinRelationship: 'Next of kin relationship', nextOfKinPhone: 'Next of kin phone', nextOfKinResidence: 'Next of kin residence', accountNotLinked: 'Driver account not linked', locationNoTaxi: 'The administrator must assign a taxi before location sharing can be enabled.', lastLocationShared: 'Last location shared · taxi is {status}', locationCoordinates: 'Coordinates: {coordinates} · Last update: {updated}', phone: 'Phone', email: 'Email', residence: 'Residence / home address', dateOfBirth: 'Date of birth', nationality: 'Nationality', fullName: 'Full name', relationship: 'Relationship', telephone: 'Telephone', profileStatusComplete: 'Profile complete', profileStatusIncomplete: '{count} detail{countText} to complete', locationNoTaxi: 'The administrator must assign a taxi before location sharing can be enabled.', locationShared: 'Location shared with the administrator', locationLiveActive: 'Live location sharing is active.', locationLiveStopped: 'Live sharing stopped. Your last shared position is still available to the administrator.', noDocuments: 'No documents have been registered for this driver.', passwordChangeRequired: 'Password change required', privacyAccepted: 'Accepted', privacyPending: 'Pending', accountNotCreated: 'Not created', noPasswordChange: 'No password change required', detailsSaved: 'Your driver details were saved', passwordUpdated: 'Password updated', locationDenied: 'Location permission was declined. You can enable it later in browser settings.', locationUnavailable: 'A GPS position could not be determined right now.', locationTimeout: 'The location request timed out. Try again when you have a GPS signal.', locationRequesting: 'Requesting your permission…', locationSaveError: 'The location could not be saved in this browser.', accountMissing: 'This driver login is not linked to a driver record. Contact the administrator.'
       } },
       fr: { label: 'French', nativeName: 'Français', dir: 'ltr', strings: { logout: 'Se déconnecter', driverWorkspace: 'Espace chauffeur', driverPortal: 'Portail chauffeur', yourProfile: 'Votre profil', assignedTaxi: 'Taxi attribuée', locationSharing: 'Partage de la position', yourPrivacy: 'Votre vie privée', settings: 'Paramètres', language: 'Langue', phone: 'Téléphone', email: 'E-mail', residence: 'Domicile', dateOfBirth: 'Date de naissance', nationality: 'Nationalité', nextOfKin: 'Personne à prévenir', fullName: 'Nom complet', relationship: 'Lien', telephone: 'Téléphone', addDocument: 'Ajouter un document', saveDetails: 'Enregistrer mes informations', allowLocation: 'Autoriser le partage de la position', startLive: 'Démarrer le partage en direct', stopSharing: 'Arrêter le partage', profileComplete: 'Profil complet', locationNotRequested: 'Autorisation de position non demandée' } },
       ar: { label: 'Arabic', nativeName: 'العربية', dir: 'rtl', strings: { logout: 'تسجيل الخروج', driverWorkspace: 'مساحة السائق', driverPortal: 'بوابة السائق', yourProfile: 'ملفك الشخصي', assignedTaxi: 'سيارتك المحددة', locationSharing: 'مشاركة الموقع', yourPrivacy: 'خصوصيتك', settings: 'الإعدادات', language: 'اللغة', phone: 'الهاتف', email: 'البريد الإلكتروني', residence: 'العنوان', dateOfBirth: 'تاريخ الميلاد', nationality: 'الجنسية', nextOfKin: 'شخص للطوارئ', fullName: 'الاسم الكامل', relationship: 'صلة القرابة', telephone: 'الهاتف', addDocument: 'إضافة وثيقة', saveDetails: 'حفظ معلوماتي', allowLocation: 'السماح مشاركة الموقع', startLive: 'بدء المشاركة المباشرة', stopSharing: 'إيقاف المشاركة', profileComplete: 'الملف مكتمل', locationNotRequested: 'لم يتم طلب إذن الموقع' } },
@@ -2906,14 +2758,14 @@
 
     function readUserAccounts() {
       const stored = store.get(USER_ACCOUNTS_KEY, []);
-      return Array.isArray(stored) ? stored.map(normalizeAccount).filter(account => account.username && account.passwordHash) : [];
+      return uniqueAccountRecords(Array.isArray(stored) ? stored.map(normalizeAccount) : []).filter(account => account.username && account.passwordHash);
     }
 
     let userAccounts = readUserAccounts();
     let currentAccount = null;
 
     function saveUserAccounts(accounts = userAccounts) {
-      userAccounts = accounts.map(normalizeAccount);
+      userAccounts = uniqueAccountRecords(accounts.map(normalizeAccount));
       return store.set(USER_ACCOUNTS_KEY, userAccounts);
     }
 
@@ -4822,9 +4674,49 @@
       toast._t = setTimeout(() => el.classList.remove('show'), 2200);
     }
 
+    function recordTimestamp(record) {
+      const value = record?.updatedAt || record?.submittedAt || record?.createdAt || '';
+      const timestamp = Date.parse(value);
+      return Number.isFinite(timestamp) ? timestamp : 0;
+    }
+
+    function stableStringify(value) {
+      if (value === null || typeof value !== 'object') return JSON.stringify(value);
+      if (Array.isArray(value)) return `[${value.map(item => stableStringify(item)).join(',')}]`;
+      return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(',')}}`;
+    }
+
+    function uniqueRecords(records) {
+      const byKey = new Map();
+      (Array.isArray(records) ? records : []).forEach(record => {
+        if (!record || typeof record !== 'object') return;
+        const id = String(record.id || '').trim();
+        const key = id ? `id:${id}` : `object:${stableStringify(record)}`;
+        const previous = byKey.get(key);
+        if (!previous || recordTimestamp(record) >= recordTimestamp(previous)) byKey.set(key, record);
+      });
+      return [...byKey.values()];
+    }
+
+    function uniqueRecordsBy(records, getIdentity) {
+      const byIdentity = new Map();
+      uniqueRecords(records).forEach(record => {
+        const identity = String(getIdentity(record) || '').trim();
+        const key = identity || `record:${record.id || stableStringify(record)}`;
+        const previous = byIdentity.get(key);
+        if (!previous || recordTimestamp(record) >= recordTimestamp(previous)) byIdentity.set(key, record);
+      });
+      return [...byIdentity.values()];
+    }
+
+    function saveUniqueList(key, records) {
+      const normalized = key === 'taxis' ? uniqueTaxiRecords(records) : uniqueRecords(records);
+      return store.set(key, normalized);
+    }
+
     function readList(key) {
       const value = store.get(key, []);
-      return Array.isArray(value) ? value.filter(item => item && typeof item === 'object') : [];
+      return uniqueRecords(Array.isArray(value) ? value.filter(item => item && typeof item === 'object') : []);
     }
 
     const DRIVER_DATABASE_KEY = 'driverDatabase';
@@ -4882,29 +4774,64 @@
       };
     }
 
+    function uniqueTaxiRecords(records) {
+      return uniqueRecordsBy(records, taxi => {
+        const plate = normalizeUgandanPlate(taxi.plate);
+        return plate ? `plate:${plate}` : '';
+      });
+    }
+
+    function uniqueDriverRecords(records) {
+      return uniqueRecordsBy(records, driver => {
+        const nin = String(driver.nin || '').replace(/\D/g, '');
+        if (nin) return `nin:${nin}`;
+        const license = String(driver.license || '').trim().toUpperCase();
+        return license ? `license:${license}` : '';
+      });
+    }
+
+    function uniqueAccountRecords(accounts) {
+      return uniqueRecordsBy(accounts, account => account.username ? `${account.role}:${account.username}` : '');
+    }
+
     function loadDriverDatabase() {
       const stored = store.get(DRIVER_DATABASE_KEY, null);
-      if (Array.isArray(stored)) return stored.map(normalizeDriverRecord);
-      const legacy = readList('drivers').map(normalizeDriverRecord);
+      if (Array.isArray(stored)) {
+        store.remove('drivers');
+        return uniqueDriverRecords(stored.map(normalizeDriverRecord));
+      }
+      const legacy = uniqueDriverRecords(readList('drivers').map(normalizeDriverRecord));
       store.set(DRIVER_DATABASE_KEY, legacy);
+      store.remove('drivers');
       store.set('driverDatabaseMeta', { version: DRIVER_DATABASE_VERSION, recordCount: legacy.length, updatedAt: new Date().toISOString() });
       return legacy;
     }
 
     function saveDriverDatabase(records) {
-      const normalized = records.map(normalizeDriverRecord);
+      const normalized = uniqueDriverRecords(records.map(normalizeDriverRecord));
       if (!store.set(DRIVER_DATABASE_KEY, normalized)) return false;
       store.set('driverDatabaseMeta', { version: DRIVER_DATABASE_VERSION, recordCount: normalized.length, updatedAt: new Date().toISOString() });
       return true;
     }
 
-    let taxis = readList('taxis');
+    let taxis = uniqueTaxiRecords(readList('taxis'));
     let drivers = loadDriverDatabase();
     let taxiLocations = store.get('taxiLocations', {});
     if (!taxiLocations || typeof taxiLocations !== 'object' || Array.isArray(taxiLocations)) taxiLocations = {};
     let trips = readList('trips');
     let fuelRecords = readList('fuelRecords');
     let maintenanceRecords = readList('maintenanceRecords');
+
+    function persistDeduplicatedCollections() {
+      saveUniqueList('taxis', taxis);
+      store.set(DRIVER_DATABASE_KEY, uniqueDriverRecords(drivers));
+      store.set(USER_ACCOUNTS_KEY, uniqueAccountRecords(userAccounts));
+      saveUniqueList('trips', trips);
+      saveUniqueList('fuelRecords', fuelRecords);
+      saveUniqueList('maintenanceRecords', maintenanceRecords);
+    }
+
+    persistDeduplicatedCollections();
 
     const navButtons = document.querySelectorAll('nav button');
     const sections = document.querySelectorAll('.content section');
@@ -5464,11 +5391,11 @@
       const nextTaxis = existingIndex >= 0
         ? taxis.map((taxi, index) => index === existingIndex ? data : taxi)
         : [...taxis, data];
-      if (!store.set('taxis', nextTaxis)) {
+      if (!saveUniqueList('taxis', nextTaxis)) {
         toast('Could not save the taxi. Check browser storage and try again.');
         return;
       }
-      taxis = nextTaxis;
+      taxis = uniqueTaxiRecords(nextTaxis);
       taxiForm.reset();
       taxiIdInput.value = '';
       renderTaxis();
@@ -5510,11 +5437,11 @@
       }
       if (!confirm('Delete this taxi?')) return;
       const nextTaxis = taxis.filter(t => t.id !== id);
-      if (!store.set('taxis', nextTaxis)) {
+      if (!saveUniqueList('taxis', nextTaxis)) {
         toast('Could not delete the taxi. Check browser storage and try again.');
         return;
       }
-      taxis = nextTaxis;
+      taxis = uniqueTaxiRecords(nextTaxis);
       if (taxiIdInput.value === id) {
         taxiForm.reset();
         taxiIdInput.value = '';
@@ -6100,21 +6027,10 @@
     const adminSetupForm = document.getElementById('admin-setup-form');
     const loginForm = document.getElementById('login-form');
     const driverPortal = document.getElementById('driver-portal');
-    const driverPortalForm = document.getElementById('driver-portal-profile-form');
-    const driverPortalDocumentList = document.getElementById('driver-portal-document-list');
-    const driverPortalLocationPermission = document.getElementById('driver-portal-location-permission');
-    const driverPortalLocationTitle = document.getElementById('driver-portal-location-title');
-    const driverPortalLocationStatus = document.getElementById('driver-portal-location-status');
-    const driverPortalLocationRequest = document.getElementById('driver-portal-location-request');
-    const driverPortalLocationLive = document.getElementById('driver-portal-location-live');
-    const driverPortalLocationStop = document.getElementById('driver-portal-location-stop');
-    const driverPortalPasswordCard = document.getElementById('driver-portal-password-card');
     const driverTripForm = document.getElementById('driver-trip-form');
     const driverTripList = document.getElementById('driver-trip-list');
     const driverTripCount = document.getElementById('driver-trip-count');
     const driverTripDraftStatus = document.getElementById('driver-trip-draft-status');
-    const driverOverviewSummary = document.getElementById('driver-overview-summary');
-    const driverOverviewDate = document.getElementById('driver-overview-date');
     const driverAccountButton = document.getElementById('driver-account-button');
     const driverAccountPanel = document.getElementById('driver-account-panel');
     const driverAccountDetails = document.getElementById('driver-account-details');
@@ -6129,8 +6045,6 @@
     let driverTripDraftTimer = null;
     let driverFuelDraftTimer = null;
     let driverMaintenanceDraftTimer = null;
-    let driverPortalLocationWatchId = null;
-    let driverPortalLocationPermissionGranted = false;
 
     function setAuthError(message = '') {
       authError.textContent = message;
@@ -6215,22 +6129,6 @@
       return assignedTaxiForDriver(driver);
     }
 
-    function driverProfileCompletion(driver) {
-      const required = [
-        ['phone', driver.phone],
-        ['residence', driver.residence],
-        ['nationalId', driver.nin],
-        ['dateOfBirth', driver.dob],
-        ['nationality', driver.nationality],
-        ['nextOfKinName', driver.nextOfKin?.name],
-        ['nextOfKinRelationship', driver.nextOfKin?.relationship],
-        ['nextOfKinPhone', driver.nextOfKin?.phone],
-        ['nextOfKinResidence', driver.nextOfKin?.residence]
-      ];
-      const missing = required.filter(([, value]) => !String(value || '').trim());
-      return { missing, complete: missing.length === 0, percent: Math.round(((required.length - missing.length) / required.length) * 100) };
-    }
-
     function driverInitials(name) {
       const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
       return (parts.slice(0, 2).map(part => part[0]).join('') || 'D').toUpperCase();
@@ -6238,29 +6136,6 @@
 
     function driverTaxiLabel(taxi) {
       return taxi ? `${taxi.plate}${taxi.make ? ` · ${taxi.make} ${taxi.model || ''}`.trim() : ''}` : t('noTaxiAssigned');
-    }
-
-    function renderDriverOverview(driver, taxi) {
-      if (!driverOverviewSummary) return;
-      const month = todayIso().slice(0, 7);
-      const ownTrips = trips.filter(trip => trip.driverId === driver.id);
-      const monthTrips = ownTrips.filter(trip => String(trip.date || '').startsWith(month));
-      const ownFuel = fuelRecords.filter(record => record.driverId === driver.id);
-      const monthFuel = ownFuel.filter(record => String(record.date || '').startsWith(month));
-      const ownMaintenance = maintenanceRecords.filter(record => record.driverId === driver.id);
-      const monthMaintenance = ownMaintenance.filter(record => String(record.date || '').startsWith(month));
-      const gps = taxi ? taxiLocations[taxi.id] : null;
-      const hasGps = gps && Number.isFinite(Number(gps.lat)) && Number.isFinite(Number(gps.lon));
-      const stats = [
-        ['Assigned taxi', driverTaxiLabel(taxi)],
-        ['Profile', driverProfileCompletion(driver).complete ? t('profileComplete') : t('profileIncomplete')],
-        ['Trips this month', formatNumber(monthTrips.length)],
-        ['Fuel this month', `${formatNumber(monthFuel.reduce((sum, record) => sum + (Number(record.amount) || 0), 0))} UGX`],
-        ['Maintenance this month', `${formatNumber(monthMaintenance.reduce((sum, record) => sum + (Number(record.totalCost) || 0), 0))} UGX`],
-        ['GPS status', hasGps ? t('locationShared') : t('locationNotRequested')]
-      ];
-      driverOverviewSummary.innerHTML = stats.map(([label, value]) => `<div class="driver-overview-stat"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join('');
-      if (driverOverviewDate) driverOverviewDate.textContent = new Date().toLocaleDateString('en-US', { dateStyle: 'full' });
     }
 
     function renderDriverAccountDetails() {
@@ -6300,31 +6175,33 @@
     }
 
     const DRIVER_VIEW_BY_SECTION = {
-      'driver-overview-section': 'overview',
       'driver-trip-section': 'trip',
       'driver-fuel-section': 'fuel',
-      'driver-maintenance-section': 'maintenance',
-      'driver-profile-section': 'details',
-      'driver-location-section': 'location',
-      'driver-privacy-section': 'settings',
-      'driver-settings-section': 'settings'
+      'driver-maintenance-section': 'maintenance'
     };
-    const DRIVER_VIEW_NAMES = new Set(Object.values(DRIVER_VIEW_BY_SECTION));
-    let activeDriverView = 'overview';
+    const DRIVER_VIEW_NAMES = new Set(['menu', ...Object.values(DRIVER_VIEW_BY_SECTION)]);
+    let activeDriverView = 'menu';
 
     function setDriverView(view, { scroll = true } = {}) {
       if (driverAccountPanel && !driverAccountPanel.hidden) setDriverAccountPanelOpen(false);
-      const nextView = DRIVER_VIEW_NAMES.has(view) ? view : 'overview';
+      const requestedView = String(view || 'menu');
+      const nextView = requestedView === 'menu' || DRIVER_VIEW_NAMES.has(requestedView) ? requestedView : 'menu';
       activeDriverView = nextView;
-      document.querySelectorAll('[data-driver-view]').forEach(section => {
+      document.querySelectorAll('#driver-portal [data-driver-view]').forEach(section => {
         section.hidden = section.dataset.driverView !== nextView;
       });
-      const passwordCard = document.getElementById('driver-portal-password-card');
-      if (passwordCard) passwordCard.hidden = nextView !== 'details' || !currentAccount?.mustChangePassword;
-      document.querySelectorAll('[data-driver-menu-view]').forEach(button => button.classList.toggle('active', button.dataset.driverMenuView === nextView));
-      document.querySelectorAll('[data-driver-jump]').forEach(link => link.classList.toggle('active', DRIVER_VIEW_BY_SECTION[link.dataset.driverJump] === nextView));
+      document.querySelectorAll('[data-driver-menu-view]').forEach(button => {
+        button.classList.toggle('active', button.dataset.driverMenuView === nextView);
+        button.setAttribute('aria-pressed', String(button.dataset.driverMenuView === nextView));
+      });
+      const menuCard = document.getElementById('driver-menu-card');
+      if (menuCard) menuCard.hidden = nextView !== 'menu';
+      const viewNavigation = document.getElementById('driver-view-navigation');
+      if (viewNavigation) viewNavigation.hidden = nextView === 'menu';
       if (scroll) {
-        const target = document.getElementById(nextView === 'overview' ? 'driver-overview-section' : Object.keys(DRIVER_VIEW_BY_SECTION).find(id => DRIVER_VIEW_BY_SECTION[id] === nextView));
+        const target = nextView === 'menu'
+          ? document.getElementById('driver-menu-card')
+          : document.getElementById(Object.keys(DRIVER_VIEW_BY_SECTION).find(id => DRIVER_VIEW_BY_SECTION[id] === nextView));
         target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
@@ -6591,11 +6468,11 @@
       const nextTrips = existingIndex >= 0
         ? trips.map((trip, index) => index === existingIndex ? record : trip)
         : [...trips, record];
-      if (!store.set('trips', nextTrips)) {
+      if (!saveUniqueList('trips', nextTrips)) {
         toast(t('tripReportSaveError'));
         return;
       }
-      trips = nextTrips;
+      trips = uniqueRecords(nextTrips);
       clearTimeout(driverTripDraftTimer);
       store.remove(driverTripDraftKey());
       resetDriverTripForm({ restoreDraft: false });
@@ -6927,13 +6804,12 @@
       };
       const index = fuelRecords.findIndex(record => record.id === id);
       const next = index >= 0 ? fuelRecords.map((record, recordIndex) => recordIndex === index ? data : record) : [...fuelRecords, data];
-      if (!store.set('fuelRecords', next)) { toast(t('fuelSaveError')); return; }
-      fuelRecords = next;
+      if (!saveUniqueList('fuelRecords', next)) { toast(t('fuelSaveError')); return; }
+      fuelRecords = uniqueRecords(next);
       clearTimeout(driverFuelDraftTimer);
       store.remove(driverOpsDraftKey('Fuel'));
       resetDriverFuelForm({ restoreDraft: false });
       renderDriverFuelList();
-      renderDriverOverview(driver, taxi);
       toast(t('fuelReportSaved'));
     }
 
@@ -7068,13 +6944,12 @@
       };
       const index = maintenanceRecords.findIndex(record => record.id === id);
       const next = index >= 0 ? maintenanceRecords.map((record, recordIndex) => recordIndex === index ? data : record) : [...maintenanceRecords, data];
-      if (!store.set('maintenanceRecords', next)) { toast(t('maintenanceSaveError')); return; }
-      maintenanceRecords = next;
+      if (!saveUniqueList('maintenanceRecords', next)) { toast(t('maintenanceSaveError')); return; }
+      maintenanceRecords = uniqueRecords(next);
       clearTimeout(driverMaintenanceDraftTimer);
       store.remove(driverOpsDraftKey('Maintenance'));
       resetDriverMaintenanceForm({ restoreDraft: false });
       renderDriverMaintenanceList();
-      renderDriverOverview(driver, taxi);
       toast(t('maintenanceReportSaved'));
     }
 
@@ -7082,8 +6957,6 @@
       const driver = currentDriverRecord();
       if (!driver) {
         driverPortal.hidden = false;
-        document.getElementById('driver-portal-welcome').textContent = t('accountNotLinked', 'Driver account not linked');
-        document.getElementById('driver-portal-welcome-detail').textContent = t('contactAdmin', 'Contact the administrator');
         setDriverTripFormAvailability(null);
         setDriverOpsFormAvailability(driverFuelForm, null);
         setDriverOpsFormAvailability(driverMaintenanceForm, null);
@@ -7091,55 +6964,11 @@
         renderDriverFuelList();
         renderDriverMaintenanceList();
         renderDriverAccountDetails();
-        setDriverView('overview', { scroll: false });
+        setDriverView('menu', { scroll: false });
         applyDriverLanguage();
         return;
       }
       const taxi = currentDriverTaxi(driver);
-      const completion = driverProfileCompletion(driver);
-      const location = taxi ? taxiLocations[taxi.id] : null;
-      const hasLocation = location && Number.isFinite(Number(location.lat)) && Number.isFinite(Number(location.lon));
-      const taxiActive = Boolean(taxi && taxi.status === 'Active');
-      const locationTitle = !taxi
-        ? t('noTaxiAssigned')
-        : hasLocation
-          ? taxiActive ? t('locationShared') : tWithVars('lastLocationShared', { status: taxi.status })
-          : driverPortalLocationPermissionGranted ? t('locationPermissionGranted') : t('locationNotRequested');
-      const locationMessage = !taxi
-        ? t('locationNoTaxi')
-        : hasLocation
-          ? tWithVars('locationCoordinates', { coordinates: `${formatNumber(location.lat, 5)}, ${formatNumber(location.lon, 5)}`, updated: formatGpsTime(location.updatedAt) })
-          : driverPortalLocationPermissionGranted
-            ? t('locationGrantedText')
-            : t('locationOptInText');
-      const completionPill = document.getElementById('driver-completion-pill');
-      completionPill.textContent = completion.complete
-        ? t('profileComplete')
-        : tWithVars('profileStatusIncomplete', { count: completion.missing.length, countText: completion.missing.length === 1 ? '' : 's' });
-      completionPill.classList.toggle('incomplete', !completion.complete);
-      document.getElementById('driver-portal-welcome').textContent = tWithVars('welcomeDriver', { name: driver.name || t('driver') });
-      document.getElementById('driver-portal-welcome-detail').textContent = completion.complete
-        ? t('profileCompleteHelp')
-        : tWithVars('profileIncompleteHelp', { count: completion.missing.length, countText: completion.missing.length === 1 ? '' : 's' });
-      document.getElementById('driver-portal-form-hint').textContent = completion.complete
-        ? t('reviewInfo')
-        : tWithVars('requiredNow', { fields: completion.missing.map(([key]) => t(key)).join(', ') });
-      document.getElementById('driver-portal-profile-summary').innerHTML = `
-        <div class="driver-summary-row"><span>${t('name')}</span><strong>${driverDetailValue(driver.name)}</strong></div>
-        <div class="driver-summary-row"><span>${t('phone')}</span><strong>${driverDetailValue(driver.phone)}</strong></div>
-        <div class="driver-summary-row"><span>${t('nationalId')}</span><strong>${driverDetailValue(driver.nin)}</strong></div>
-        <div class="driver-summary-row"><span>${t('residence')}</span><strong>${driverDetailValue(driver.residence)}</strong></div>`;
-      document.getElementById('driver-portal-taxi-summary').innerHTML = taxi
-        ? `<div class="driver-summary-row"><span>${t('numberPlate')}</span><strong>${driverDetailValue(taxi.plate)}</strong></div>
-          <div class="driver-summary-row"><span>${t('vehicle')}</span><strong>${driverDetailValue(`${taxi.make || ''} ${taxi.model || ''}`.trim())}</strong></div>
-          <div class="driver-summary-row"><span>${t('status')}</span><strong>${statusBadge(taxi.status)}</strong></div>`
-        : `<p class="driver-document-empty">${t('noTaxiAssigned')}. ${t('contactAdmin')}.</p>`;
-      driverPortalLocationPermission.classList.toggle('ready', Boolean(hasLocation && taxiActive));
-      driverPortalLocationTitle.textContent = locationTitle;
-      driverPortalLocationStatus.textContent = locationMessage;
-      driverPortalLocationRequest.disabled = !taxi;
-      driverPortalLocationLive.disabled = !taxi || !driverPortalLocationPermissionGranted;
-      driverPortalLocationStop.disabled = driverPortalLocationWatchId == null;
       if (!preserveForm) resetDriverTripForm();
       else setDriverTripFormAvailability(taxi);
       if (!preserveForm) resetDriverFuelForm();
@@ -7149,143 +6978,20 @@
       renderDriverTripList();
       renderDriverFuelList();
       renderDriverMaintenanceList();
-      renderDriverOverview(driver, taxi);
       renderDriverAccountDetails();
-      if (!preserveForm) {
-        document.getElementById('driver-portal-driver-id').value = driver.id;
-        document.getElementById('driver-portal-phone').value = driver.phone || '';
-        document.getElementById('driver-portal-email').value = driver.email || '';
-        document.getElementById('driver-portal-residence').value = driver.residence || '';
-        document.getElementById('driver-portal-nin').value = driver.nin || '';
-        document.getElementById('driver-portal-dob').value = driver.dob || '';
-        document.getElementById('driver-portal-nationality').value = driver.nationality || 'Ugandan';
-        document.getElementById('driver-portal-nok-name').value = driver.nextOfKin?.name || '';
-        document.getElementById('driver-portal-nok-relationship').value = driver.nextOfKin?.relationship || '';
-        document.getElementById('driver-portal-nok-phone').value = driver.nextOfKin?.phone || '';
-        document.getElementById('driver-portal-nok-email').value = driver.nextOfKin?.email || '';
-        document.getElementById('driver-portal-nok-residence').value = driver.nextOfKin?.residence || '';
-        document.getElementById('driver-portal-consent').checked = Boolean(currentAccount?.privacyConsent);
-        resetDriverDocuments(driver.documents || [], driverPortalDocumentList);
-      }
-      driverPortalPasswordCard.hidden = !currentAccount?.mustChangePassword;
       applyDriverLanguage();
       setDriverView(activeDriverView, { scroll: false });
-    }
-
-    function renderDriverPortalLocation() {
-      const driver = currentDriverRecord();
-      const taxi = currentDriverTaxi(driver);
-      const location = taxi ? taxiLocations[taxi.id] : null;
-      const hasLocation = location && Number.isFinite(Number(location.lat)) && Number.isFinite(Number(location.lon));
-      const taxiActive = Boolean(taxi && taxi.status === 'Active');
-      const locationTitle = !taxi
-        ? t('noTaxiAssigned')
-        : hasLocation
-          ? taxiActive ? t('locationShared') : tWithVars('lastLocationShared', { status: taxi.status })
-          : driverPortalLocationPermissionGranted ? t('locationPermissionGranted') : t('locationNotRequested');
-      const locationMessage = !taxi
-        ? t('locationNoTaxi')
-        : hasLocation
-          ? tWithVars('locationCoordinates', { coordinates: `${formatNumber(location.lat, 5)}, ${formatNumber(location.lon, 5)}`, updated: formatGpsTime(location.updatedAt) })
-          : driverPortalLocationPermissionGranted
-            ? t('locationGrantedText')
-            : t('locationOptInText');
-      driverPortalLocationPermission.classList.toggle('ready', Boolean(hasLocation && taxiActive));
-      driverPortalLocationTitle.textContent = locationTitle;
-      driverPortalLocationStatus.textContent = locationMessage;
-      driverPortalLocationRequest.disabled = !taxi;
-      driverPortalLocationLive.disabled = !taxi || !driverPortalLocationPermissionGranted;
-      driverPortalLocationStop.disabled = driverPortalLocationWatchId == null;
-      setDriverTripFormAvailability(taxi);
     }
 
     function showDriverWorkspace(account) {
       currentAccount = normalizeAccount(account);
       setSession(currentAccount);
-      activeDriverView = 'overview';
-      driverPortalLocationPermissionGranted = false;
-      stopDriverPortalLiveLocation();
+      activeDriverView = 'menu';
       authScreen.hidden = true;
       document.getElementById('admin-app').hidden = true;
       driverPortal.hidden = false;
       renderDriverPortal();
       hydrateGoogleTranslations(getDriverLanguage());
-    }
-
-    function stopDriverPortalLiveLocation() {
-      if (driverPortalLocationWatchId != null && navigator.geolocation?.clearWatch) navigator.geolocation.clearWatch(driverPortalLocationWatchId);
-      driverPortalLocationWatchId = null;
-    }
-
-    function saveDriverPortalLocation(position) {
-      const driver = currentDriverRecord();
-      const taxi = currentDriverTaxi(driver);
-      if (!taxi) return false;
-      const nextLocations = {
-        ...taxiLocations,
-        [taxi.id]: {
-          lat: Number(position.coords.latitude),
-          lon: Number(position.coords.longitude),
-          accuracy: Number(position.coords.accuracy) || null,
-          updatedAt: new Date().toISOString(),
-          source: 'driver portal GPS'
-        }
-      };
-      if (!store.set('taxiLocations', nextLocations)) return false;
-      taxiLocations = nextLocations;
-      return true;
-    }
-
-    function requestDriverPortalLocation() {
-      const driver = currentDriverRecord();
-      const taxi = currentDriverTaxi(driver);
-      if (!taxi) {
-        driverPortalLocationStatus.textContent = t('locationNoTaxi');
-        return;
-      }
-      if (!navigator.geolocation) {
-        driverPortalLocationStatus.textContent = t('locationUnavailable');
-        return;
-      }
-      driverPortalLocationStatus.textContent = t('locationRequesting');
-      navigator.geolocation.getCurrentPosition(position => {
-        if (!saveDriverPortalLocation(position)) {
-          driverPortalLocationStatus.textContent = t('locationSaveError');
-          return;
-        }
-        driverPortalLocationPermissionGranted = true;
-        renderDriverPortalLocation();
-        driverPortalLocationStatus.textContent = t('locationShared');
-      }, error => {
-        driverPortalLocationStatus.textContent = error.code === 1
-          ? t('locationDenied')
-          : error.code === 3
-            ? t('locationTimeout')
-            : t('locationUnavailable');
-      }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
-    }
-
-    function startDriverPortalLiveLocation() {
-      if (!driverPortalLocationPermissionGranted) {
-        driverPortalLocationStatus.textContent = t('locationOptInText');
-        return;
-      }
-      const driver = currentDriverRecord();
-      const taxi = currentDriverTaxi(driver);
-      if (!taxi || !navigator.geolocation?.watchPosition) return;
-      stopDriverPortalLiveLocation();
-      driverPortalLocationStatus.textContent = t('locationRequesting');
-      driverPortalLocationWatchId = navigator.geolocation.watchPosition(position => {
-        if (saveDriverPortalLocation(position)) {
-          renderDriverPortalLocation();
-          driverPortalLocationStatus.textContent = t('locationLiveActive');
-        }
-      }, error => {
-        driverPortalLocationStatus.textContent = error.code === 1 ? t('locationDenied') : t('locationUnavailable');
-        stopDriverPortalLiveLocation();
-        renderDriverPortalLocation();
-      }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 30000 });
-      renderDriverPortalLocation();
     }
 
     async function refreshAccountAfterLogin(account) {
@@ -7296,7 +7002,6 @@
     }
 
     function logoutCurrentUser() {
-      stopDriverPortalLiveLocation();
       clearSession();
       document.getElementById('admin-app').hidden = true;
       driverPortal.hidden = true;
@@ -7365,17 +7070,9 @@
 
     document.querySelectorAll('input[name="login-role"]').forEach(input => input.addEventListener('change', updateLoginRoleGuide));
     document.getElementById('auth-language-select').addEventListener('change', event => setDriverLanguage(event.target.value));
-    document.getElementById('driver-language-select').addEventListener('change', event => setDriverLanguage(event.target.value));
     document.getElementById('sidebar-logout').addEventListener('click', logoutCurrentUser);
     document.getElementById('topbar-logout').addEventListener('click', logoutCurrentUser);
     document.getElementById('driver-portal-logout').addEventListener('click', logoutCurrentUser);
-    driverPortalLocationRequest.addEventListener('click', requestDriverPortalLocation);
-    driverPortalLocationLive.addEventListener('click', startDriverPortalLiveLocation);
-    driverPortalLocationStop.addEventListener('click', () => {
-      stopDriverPortalLiveLocation();
-      renderDriverPortalLocation();
-      driverPortalLocationStatus.textContent = t('locationLiveStopped');
-    });
     driverTripForm.addEventListener('input', () => {
       updateDriverTripCalculations();
       scheduleDriverTripDraftSave();
@@ -7400,10 +7097,7 @@
       if (event.key === 'Escape' && driverAccountPanel && !driverAccountPanel.hidden) setDriverAccountPanelOpen(false);
     });
     document.getElementById('driver-account-close')?.addEventListener('click', () => setDriverAccountPanelOpen(false));
-    document.getElementById('driver-account-edit')?.addEventListener('click', () => {
-      setDriverAccountPanelOpen(false);
-      jumpToDriverSection('driver-profile-section');
-    });
+    document.getElementById('driver-close-view')?.addEventListener('click', () => setDriverView('menu'));
     document.querySelectorAll('[data-driver-menu-view]').forEach(button => button.addEventListener('click', () => setDriverView(button.dataset.driverMenuView)));
     document.querySelectorAll('[data-driver-jump]').forEach(link => link.addEventListener('click', event => {
       event.preventDefault();
@@ -7429,89 +7123,6 @@
       resetDriverMaintenanceForm({ restoreDraft: false });
       toast(t('tripFormCleared'));
     });
-    document.getElementById('driver-portal-add-document').addEventListener('click', () => addDriverDocument({}, driverPortalDocumentList));
-    document.getElementById('driver-portal-nin').addEventListener('input', event => { event.target.value = event.target.value.replace(/\D/g, '').slice(0, 14); });
-
-    driverPortalForm.addEventListener('submit', event => {
-      event.preventDefault();
-      const driver = currentDriverRecord();
-      if (!driver) return;
-      const documents = getDriverDocuments(driverPortalDocumentList);
-      if (documents.some(documentData => !documentData.type || !documentData.number)) {
-        toast('Complete the type and number for each document, or remove its blank row.');
-        return;
-      }
-      const data = {
-        ...driver,
-        phone: document.getElementById('driver-portal-phone').value.trim(),
-        email: document.getElementById('driver-portal-email').value.trim(),
-        residence: document.getElementById('driver-portal-residence').value.trim(),
-        nin: document.getElementById('driver-portal-nin').value.trim(),
-        dob: document.getElementById('driver-portal-dob').value,
-        nationality: document.getElementById('driver-portal-nationality').value.trim() || 'Ugandan',
-        nextOfKin: {
-          name: document.getElementById('driver-portal-nok-name').value.trim(),
-          relationship: document.getElementById('driver-portal-nok-relationship').value.trim(),
-          phone: document.getElementById('driver-portal-nok-phone').value.trim(),
-          email: document.getElementById('driver-portal-nok-email').value.trim(),
-          residence: document.getElementById('driver-portal-nok-residence').value.trim()
-        },
-        documents
-      };
-      const duplicateNin = drivers.find(item => item.id !== driver.id && item.nin && item.nin === data.nin);
-      if (duplicateNin) {
-        toast(`That National ID is already registered to another driver.`);
-        return;
-      }
-      const nextDrivers = drivers.map(item => item.id === driver.id ? data : item).map(normalizeDriverRecord);
-      if (!saveDriverDatabase(nextDrivers)) {
-        toast('Could not save your details. Check browser storage and try again.');
-        return;
-      }
-      drivers = nextDrivers;
-      const updatedAccount = normalizeAccount({ ...currentAccount, privacyConsent: true, updatedAt: new Date().toISOString() });
-      if (!saveUserAccounts(userAccounts.map(item => item.id === updatedAccount.id ? updatedAccount : item))) {
-        toast('Your details were saved, but your privacy preference could not be updated.');
-      } else {
-        currentAccount = updatedAccount;
-        setSession(updatedAccount);
-      }
-      renderDriverPortal();
-      toast('Your driver details were saved');
-    });
-
-    document.getElementById('driver-portal-password-form').addEventListener('submit', async event => {
-      event.preventDefault();
-      const currentPassword = document.getElementById('driver-password-current').value;
-      const newPassword = document.getElementById('driver-password-new').value;
-      const confirm = document.getElementById('driver-password-confirm').value;
-      if (newPassword !== confirm) {
-        toast('The new passwords do not match.');
-        return;
-      }
-      if (newPassword.length < 10) {
-        toast('Use a password with at least 10 characters.');
-        return;
-      }
-      try {
-        const valid = await hashPassword(currentPassword, currentAccount.passwordSalt) === currentAccount.passwordHash;
-        if (!valid) {
-          toast('The current password is incorrect.');
-          return;
-        }
-        const salt = createPasswordSalt();
-        const updated = normalizeAccount({ ...currentAccount, passwordSalt: salt, passwordHash: await hashPassword(newPassword, salt), mustChangePassword: false, updatedAt: new Date().toISOString() });
-        if (!saveUserAccounts(userAccounts.map(item => item.id === updated.id ? updated : item))) throw new Error('Could not save the new password.');
-        currentAccount = updated;
-        setSession(updated);
-        event.target.reset();
-        renderDriverPortal();
-        toast('Password updated');
-      } catch (error) {
-        toast(error.message || 'Could not update the password.');
-      }
-    });
-
     async function bootstrapAccess() {
       try {
         await ensureDefaultAdminAccount();
@@ -7663,11 +7274,11 @@
       const nextTrips = existingIndex >= 0
         ? trips.map((trip, index) => index === existingIndex ? data : trip)
         : [...trips, data];
-      if (!store.set('trips', nextTrips)) {
+      if (!saveUniqueList('trips', nextTrips)) {
         toast('Could not save the trip. Check browser storage and try again.');
         return;
       }
-      trips = nextTrips;
+      trips = uniqueRecords(nextTrips);
       tripForm.reset();
       ['trip-pickup', 'trip-dropoff', 'trip-distance'].forEach(id => document.getElementById(id).setCustomValidity(''));
       tripIdInput.value = '';
@@ -8074,11 +7685,11 @@
       const nextFuelRecords = existingIndex >= 0
         ? fuelRecords.map((fuel, index) => index === existingIndex ? data : fuel)
         : [...fuelRecords, data];
-      if (!store.set('fuelRecords', nextFuelRecords)) {
+      if (!saveUniqueList('fuelRecords', nextFuelRecords)) {
         toast('Could not save the fuel record. Check browser storage and try again.');
         return;
       }
-      fuelRecords = nextFuelRecords;
+      fuelRecords = uniqueRecords(nextFuelRecords);
       fuelForm.reset();
       fuelIdInput.value = '';
       prepareFuelForm();
@@ -8171,11 +7782,11 @@
     function deleteFuel(id) {
       if (!confirm('Delete this fuel record?')) return;
       const nextFuelRecords = fuelRecords.filter(f => f.id !== id);
-      if (!store.set('fuelRecords', nextFuelRecords)) {
+      if (!saveUniqueList('fuelRecords', nextFuelRecords)) {
         toast('Could not delete the fuel record. Check browser storage and try again.');
         return;
       }
-      fuelRecords = nextFuelRecords;
+      fuelRecords = uniqueRecords(nextFuelRecords);
       if (fuelIdInput.value === id) {
         fuelForm.reset();
         fuelIdInput.value = '';
@@ -8339,11 +7950,11 @@
       const nextMaintenanceRecords = existingIndex >= 0
         ? maintenanceRecords.map((maintenance, index) => index === existingIndex ? data : maintenance)
         : [...maintenanceRecords, data];
-      if (!store.set('maintenanceRecords', nextMaintenanceRecords)) {
+      if (!saveUniqueList('maintenanceRecords', nextMaintenanceRecords)) {
         toast('Could not save the maintenance record. Check browser storage and try again.');
         return;
       }
-      maintenanceRecords = nextMaintenanceRecords;
+      maintenanceRecords = uniqueRecords(nextMaintenanceRecords);
       maintenanceIdInput.value = '';
       prepareMaintenanceForm();
       renderMaintenanceTable();
@@ -8454,11 +8065,11 @@
     function deleteMaintenance(id) {
       if (!confirm('Delete this maintenance record?')) return;
       const nextMaintenanceRecords = maintenanceRecords.filter(m => m.id !== id);
-      if (!store.set('maintenanceRecords', nextMaintenanceRecords)) {
+      if (!saveUniqueList('maintenanceRecords', nextMaintenanceRecords)) {
         toast('Could not delete the maintenance record. Check browser storage and try again.');
         return;
       }
-      maintenanceRecords = nextMaintenanceRecords;
+      maintenanceRecords = uniqueRecords(nextMaintenanceRecords);
       if (maintenanceIdInput.value === id) {
         maintenanceForm.reset();
         maintenanceIdInput.value = '';
@@ -8723,7 +8334,6 @@
         if (event.key === 'trips') renderDriverTripList();
         if (event.key === 'fuelRecords') renderDriverFuelList();
         if (event.key === 'maintenanceRecords') renderDriverMaintenanceList();
-        if (driver) renderDriverOverview(driver, taxi);
       }
     });
 
