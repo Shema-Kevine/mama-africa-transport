@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
+  <title id="title">Report maintenance</title>
+  <desc id="desc">A service checklist, wrench, and Mama Africa Transport vehicle illustrate reporting maintenance.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#173b35"/>
+      <stop offset="1" stop-color="#022134"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="560" rx="28" fill="url(#bg)"/>
+  <path d="M0 420 Q190 350 400 420 T780 410 T1200 370 V560 H0Z" fill="#0b6b4c"/>
+  <path d="M0 490 Q220 420 480 480 T900 470 T1200 440 V560 H0Z" fill="#07563e"/>
+  <g transform="translate(720 170)">
+    <rect x="0" y="0" width="350" height="150" rx="28" fill="#f7f1dc"/>
+    <path d="M32 0 82-45h188l50 45" fill="#fec119"/>
+    <rect x="50" y="30" width="74" height="48" rx="8" fill="#8dd6c0"/><rect x="140" y="30" width="74" height="48" rx="8" fill="#8dd6c0"/><rect x="230" y="30" width="74" height="48" rx="8" fill="#8dd6c0"/>
+    <rect x="42" y="99" width="266" height="20" rx="8" fill="#d9c98f"/>
+    <circle cx="80" cy="153" r="25" fill="#152b35" stroke="#fec119" stroke-width="9"/><circle cx="270" cy="153" r="25" fill="#152b35" stroke="#fec119" stroke-width="9"/>
+  </g>
+  <g transform="translate(750 66)" fill="none" stroke="#fec119" stroke-width="22" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M76 8 28 56c-12 12-12 32 0 44l24 24 66-66-20-20-24 24-18-18 24-24z"/>
+    <circle cx="28" cy="100" r="13" fill="#fec119" stroke="none"/>
+  </g>
+  <g transform="translate(158 145)">
+    <rect width="300" height="260" rx="22" fill="#fff4cf"/>
+    <rect x="42" y="42" width="216" height="176" rx="12" fill="#f7f1dc" stroke="#d6bd73" stroke-width="6"/>
+    <path d="m75 128 38 38 80-91" fill="none" stroke="#08704d" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M150 42v176M42 130h216" stroke="#d6bd73" stroke-width="4" opacity=".65"/>
+  </g>
+  <text x="72" y="92" fill="#f7f1dc" font-family="Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="5">MAMA AFRICA TRANSPORT</text>
+  <text x="72" y="150" fill="#fec119" font-family="Arial, sans-serif" font-size="52" font-weight="800">REPORT MAINTENANCE</text>
+  <text x="74" y="194" fill="#e5f4ee" font-family="Arial, sans-serif" font-size="24">Choose Expenses &amp; maintenance, describe the work, then save.</text>
+</svg>

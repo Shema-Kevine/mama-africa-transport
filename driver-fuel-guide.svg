@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
+  <title id="title">Log fuel</title>
+  <desc id="desc">A fuel pump and a Mama Africa Transport vehicle illustrate recording a fuel fill-up.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#022134"/>
+      <stop offset="1" stop-color="#123f3b"/>
+    </linearGradient>
+    <linearGradient id="pump" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fec119"/>
+      <stop offset="1" stop-color="#e59b17"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="560" rx="28" fill="url(#bg)"/>
+  <path d="M0 438 Q210 365 420 430 T820 420 T1200 390 V560 H0Z" fill="#0b6b4c"/>
+  <path d="M0 490 Q250 420 470 480 T900 470 T1200 440 V560 H0Z" fill="#07563e"/>
+  <g transform="translate(760 104)">
+    <rect x="0" y="0" width="260" height="340" rx="25" fill="url(#pump)"/>
+    <rect x="28" y="35" width="204" height="108" rx="15" fill="#fff4cf"/>
+    <text x="130" y="103" text-anchor="middle" fill="#022134" font-family="Arial, sans-serif" font-size="34" font-weight="800">FUEL</text>
+    <rect x="38" y="185" width="184" height="22" rx="11" fill="#022134" opacity=".8"/>
+    <rect x="38" y="230" width="184" height="22" rx="11" fill="#022134" opacity=".8"/>
+    <path d="M260 102h42c28 0 45 18 45 45v116" fill="none" stroke="#fec119" stroke-width="18" stroke-linecap="round"/>
+    <path d="M347 263v42" stroke="#fec119" stroke-width="18" stroke-linecap="round"/>
+    <path d="M347 305h-30" stroke="#fec119" stroke-width="18" stroke-linecap="round"/>
+    <rect x="-28" y="340" width="316" height="25" rx="12" fill="#f7f1dc"/>
+  </g>
+  <g transform="translate(350 265)">
+    <rect x="0" y="0" width="320" height="135" rx="28" fill="#f7f1dc"/>
+    <path d="M30 0 76-42h164l44 42" fill="#fec119"/>
+    <rect x="43" y="28" width="68" height="45" rx="8" fill="#8dd6c0"/><rect x="128" y="28" width="68" height="45" rx="8" fill="#8dd6c0"/><rect x="213" y="28" width="68" height="45" rx="8" fill="#8dd6c0"/>
+    <rect x="35" y="91" width="250" height="20" rx="8" fill="#d9c98f"/>
+    <circle cx="72" cy="139" r="24" fill="#152b35" stroke="#fec119" stroke-width="8"/><circle cx="249" cy="139" r="24" fill="#152b35" stroke="#fec119" stroke-width="8"/>
+  </g>
+  <g transform="translate(175 110)" fill="none" stroke="#8dd6c0" stroke-width="9" stroke-linecap="round">
+    <path d="M0 42c22-30 44-30 66 0s44 30 66 0 44-30 66 0"/>
+    <path d="M0 88c22-30 44-30 66 0s44 30 66 0 44-30 66 0"/>
+  </g>
+  <text x="72" y="92" fill="#f7f1dc" font-family="Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="5">MAMA AFRICA TRANSPORT</text>
+  <text x="72" y="150" fill="#fec119" font-family="Arial, sans-serif" font-size="52" font-weight="800">LOG FUEL</text>
+  <text x="74" y="194" fill="#e5f4ee" font-family="Arial, sans-serif" font-size="24">Choose Fuel, enter litres and rate, then save.</text>
+</svg>
