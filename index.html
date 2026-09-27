@@ -38,6 +38,11 @@
       --line: #eadfbe;
       --shadow: 0 14px 36px rgba(2, 33, 52, 0.10);
       --radius: 18px;
+      /* Shared driver-portal gutters. The header and the content column both
+         derive their horizontal inset from these, so they cannot drift apart. */
+      --portal-max: 1440px;
+      --portal-gutter: 12px;
+      --portal-inset: max(var(--portal-gutter), calc((100% - var(--portal-max)) / 2));
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -675,7 +680,11 @@
       outline-offset: -3px;
     }
     #drivers-table-body tr.selected { background: #e5f3e7; }
-    @media (max-width: 900px) {
+    /* The seven-column document row needs roughly 916px of content width, but
+       the admin sidebar keeps eating 280px until 900px. Fall back to two
+       columns until there is genuinely room, otherwise the row pushes the
+       whole page into horizontal scroll between roughly 900px and 1280px. */
+    @media (max-width: 1279px) {
       .document-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .document-row .btn-danger { grid-column: 2; justify-self: end; }
     }
@@ -1124,7 +1133,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 18px;
-      padding: 18px max(20px, calc((100vw - 1180px) / 2));
+      padding: 18px var(--portal-inset);
       color: #fff8e5;
       background: linear-gradient(120deg, #112a2e, #022134);
     }
@@ -1136,9 +1145,9 @@
     .driver-portal-header-actions { display: flex; align-items: center; gap: 9px; }
     .driver-account-button { display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px; border: 1px solid rgba(254, 193, 25, 0.55); background: rgba(255, 248, 229, 0.12); color: #fff8e5 !important; }
     .driver-account-button:hover, .driver-account-button[aria-expanded="true"] { background: rgba(254, 193, 25, 0.28) !important; }
-    .driver-account-icon { display: grid; width: 25px; height: 25px; place-items: center; border-radius: 50%; background: var(--champagne); color: var(--brand-navy); font-size: 0.62rem; }
+    .driver-account-icon { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; background: var(--champagne); color: var(--brand-navy); font-size: 0.74rem; font-weight: 800; letter-spacing: .01em; }
     .driver-account-label { font-size: 0.8rem; font-weight: 800; }
-    .driver-portal-main { width: min(100% - 24px, 1440px); margin: 0 auto; padding: 22px 0 50px; }
+    .driver-portal-main { width: min(100% - (var(--portal-gutter) * 2), var(--portal-max)); margin: 0 auto; padding: 22px 0 50px; }
     .driver-welcome {
       display: flex;
       align-items: flex-end;
@@ -1194,7 +1203,7 @@
     .driver-view-navigation { display: flex; justify-content: flex-start; margin: 0 0 16px; }
     .driver-view-navigation[hidden] { display: none; }
     [data-driver-view][hidden] { display: none !important; }
-    .driver-account-panel { position: fixed; top: 78px; right: max(16px, calc((100vw - 1180px) / 2)); z-index: 30; width: min(720px, calc(100vw - 32px)); max-height: min(72vh, 640px); overflow-y: auto; border-top-color: #6b4eff; background: #f8f6ff; box-shadow: 0 22px 60px rgba(2, 33, 52, 0.24); }
+    .driver-account-panel { position: fixed; top: var(--driver-header-h, 88px); right: var(--portal-inset); z-index: 30; width: min(720px, calc(100% - (var(--portal-gutter) * 2))); max-height: min(72vh, 640px); overflow-y: auto; border-top-color: #6b4eff; background: #f8f6ff; box-shadow: 0 22px 60px rgba(2, 33, 52, 0.24); }
     .driver-account-panel[hidden] { display: none; }
     .driver-account-details { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 16px 0; }
     .driver-account-detail { display: grid; gap: 4px; min-width: 0; padding: 11px; border: 1px solid #ddd7f5; border-radius: 10px; background: #fff; }
@@ -1278,7 +1287,7 @@
       .auth-brand-panel h1 { margin-top: 18px; font-size: 2.2rem; }
       .auth-privacy-list { display: none; }
       .auth-form-panel { padding: 24px; }
-      .driver-portal-main { width: min(100% - 24px, 1440px); padding-top: 16px; }
+      .driver-portal-main { width: min(100% - (var(--portal-gutter) * 2), var(--portal-max)); padding-top: 16px; }
       .driver-portal-grid { grid-template-columns: 1fr; }
       .driver-portal-card.full { grid-column: auto; }
       .driver-welcome { align-items: flex-start; flex-direction: column; }
@@ -6391,6 +6400,20 @@
       }
     }
 
+    // The portal header wraps to two or three rows on narrow screens, so the
+    // account panel cannot sit at a fixed offset. Track the real header height
+    // in a custom property and keep it current on resize.
+    function syncDriverHeaderOffset() {
+      const header = document.querySelector('.driver-portal-header');
+      if (!header || !driverPortal || driverPortal.hidden) return;
+      const height = Math.round(header.getBoundingClientRect().height);
+      if (height > 0) document.documentElement.style.setProperty('--driver-header-h', `${height}px`);
+    }
+    window.addEventListener('resize', syncDriverHeaderOffset);
+    if (typeof ResizeObserver === 'function' && document.querySelector('.driver-portal-header')) {
+      new ResizeObserver(syncDriverHeaderOffset).observe(document.querySelector('.driver-portal-header'));
+    }
+
     const DRIVER_VIEW_BY_SECTION = {
       'driver-trip-section': 'trip',
       'driver-fuel-section': 'fuel',
@@ -7438,6 +7461,7 @@
       renderDriverAccountDetails();
       applyDriverLanguage();
       setDriverView(activeDriverView, { scroll: false });
+      syncDriverHeaderOffset();
     }
 
     function showDriverWorkspace(account) {
