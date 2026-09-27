@@ -48,6 +48,7 @@ const PNG_BYTES = Buffer.from(PNG_BASE64, 'base64');
 async function bootApi(t) {
   const port = await freePort();
   const dataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'mama-africa-media-'));
+  const databasePath = path.join(dataDirectory, 'test.sqlite');
   const apiUrl = `http://127.0.0.1:${port}`;
   const child = spawn(process.execPath, ['server.js'], {
     cwd: path.join(__dirname, '..'),
@@ -55,7 +56,7 @@ async function bootApi(t) {
       ...process.env,
       NODE_ENV: 'test',
       PORT: String(port),
-      DATABASE_PATH: path.join(dataDirectory, 'test.sqlite'),
+      DATABASE_PATH: databasePath,
       ADMIN_USERNAME: 'admin',
       ADMIN_PASSWORD: 'mamaafrica',
       DOCUMENT_ENCRYPTION_KEY: 'test-document-secret'
@@ -98,7 +99,7 @@ async function bootApi(t) {
     ] })
   });
 
-  return { apiUrl, adminCookie, adminId };
+  return { apiUrl, adminCookie, adminId, databasePath };
 }
 
 async function loginDriver(apiUrl, username) {
@@ -119,7 +120,7 @@ function uploadMedia(apiUrl, cookie, payload) {
 }
 
 test('admin uploads identification photos, which are stored encrypted', async t => {
-  const { apiUrl, adminCookie, adminId } = await bootApi(t);
+  const { apiUrl, adminCookie, adminId, databasePath } = await bootApi(t);
 
   const driverPhoto = await uploadMedia(apiUrl, adminCookie, {
     ownerType: 'driver', ownerId: 'driver-1', kind: 'driver_photo'
@@ -138,9 +139,12 @@ test('admin uploads identification photos, which are stored encrypted', async t 
   });
   assert.equal(avatar.response.status, 201);
 
-  // The blob must not be readable as plain bytes on disk.
-  const raw = fs.readFileSync(path.join(__dirname, '..', 'data', 'mama-africa.sqlite'));
+  // The photo bytes must not be readable on disk. Read the database this test
+  // actually created, not a developer database that may happen to exist.
+  const raw = fs.readFileSync(databasePath);
+  assert.ok(raw.length > 0, 'the test database should exist and have content');
   assert.ok(!raw.includes(PNG_BYTES), 'photo bytes should not appear unencrypted in the database file');
+  assert.ok(!raw.includes(Buffer.from('driver-1')), 'the driver id in this record should not be readable in clear text either');
 
   // Downloading returns the exact original bytes.
   const download = await fetch(`${apiUrl}${driverPhoto.body.media.url}`, { headers: { Cookie: adminCookie } });
