@@ -25,6 +25,7 @@ const allowedOrigin = String(process.env.ALLOWED_ORIGIN || '').trim().replace(/\
 const sessionTtlMs = Number(process.env.SESSION_TTL_MS || 8 * 60 * 60 * 1000);
 const maxJsonBytes = 12 * 1024 * 1024;
 const maxDocumentBytes = 8 * 1024 * 1024;
+const maxMediaBytes = 2 * 1024 * 1024;
 const isProduction = String(process.env.NODE_ENV || '').toLowerCase() === 'production';
 const secureCookies = String(process.env.COOKIE_SECURE || '').toLowerCase() === 'true' || (isProduction && /^https:\/\//i.test(allowedOrigin));
 const configuredAdminPassword = String(process.env.ADMIN_PASSWORD || '').trim();
@@ -124,6 +125,22 @@ db.exec(`
     updated_at TEXT NOT NULL
   );
   CREATE INDEX IF NOT EXISTS documents_driver_idx ON documents(driver_id, updated_at DESC);
+  CREATE TABLE IF NOT EXISTS media (
+    id TEXT PRIMARY KEY,
+    owner_type TEXT NOT NULL,
+    owner_id TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    mime_type TEXT NOT NULL DEFAULT '',
+    byte_size INTEGER NOT NULL DEFAULT 0,
+    content BLOB,
+    content_iv BLOB,
+    content_tag BLOB,
+    uploaded_by TEXT NOT NULL DEFAULT '',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    UNIQUE (owner_type, owner_id, kind)
+  );
+  CREATE INDEX IF NOT EXISTS media_owner_idx ON media(owner_type, owner_id);
   CREATE TABLE IF NOT EXISTS sessions (
     token_hash TEXT PRIMARY KEY,
     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -354,8 +371,48 @@ function latestGpsForUser(user) {
   }]));
 }
 
-function documentsForUser(user) {
-  const rows = user.role === 'admin'
+// Media (identification photos) are owned by a user, driver or taxi. Only an
+// administrator may upload or delete them. A signed-in driver may read media
+// that belongs to their own driver record, and may also read the administrator
+// avatar so the portal can show who administers them.
+function canReadMedia(row, user) {
+  if (!row) return false;
+  if (user.role === 'admin') return true;
+  // A driver may read account avatars, so the portal can show who administers
+  // them, but never another driver's or taxi's identification photo.
+  if (row.owner_type === 'user') return row.kind === 'avatar';
+  if (row.owner_type === 'driver') return row.owner_id === user.driverId;
+  if (row.owner_type === 'taxi') {
+    return safeJson(assignedTaxiForUser(user)?.data).id === row.owner_id;
+  }
+  return false;
+}
+
+function mediaForUser(ownerType, ownerId, user) {
+  const row = db.prepare('SELECT * FROM media WHERE owner_type = ? AND owner_id = ?').get(ownerType, ownerId);
+  return canReadMedia(row, user) ? row : null;
+}
+
+function publicMedia(row) {
+  return {
+    id: row.id,
+    ownerType: row.owner_type,
+    ownerId: row.owner_id,
+    kind: row.kind,
+    mimeType: row.mime_type,
+    byteSize: row.byte_size,
+    url: `/api/media/${encodeURIComponent(row.id)}`,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
+}
+
+function mediaListForUser(user) {
+  const rows = db.prepare('SELECT * FROM media ORDER BY updated_at DESC').all();
+  return rows.filter(row => canReadMedia(row, user)).map(publicMedia);
+}
+
+function documentsForUser(user) {  const rows = user.role === 'admin'
     ? db.prepare('SELECT * FROM documents ORDER BY updated_at DESC').all()
     : db.prepare('SELECT * FROM documents WHERE driver_id = ? ORDER BY updated_at DESC').all(user.driverId);
   return rows.map(row => ({
@@ -384,7 +441,8 @@ function stateForUser(user) {
     fuelRecords: rowsForTable('fuel_records', user),
     maintenanceRecords: rowsForTable('maintenance_records', user),
     taxiLocations: latestGpsForUser(user),
-    documents: documentsForUser(user)
+    documents: documentsForUser(user),
+    media: mediaListForUser(user)
   };
   if (user.role === 'admin') state.userAccounts = db.prepare('SELECT * FROM users ORDER BY username').all().map(publicUser);
   return state;
@@ -709,6 +767,99 @@ async function handleRequest(request, response) {
       .run(taxiId, user.role === 'driver' ? user.driverId : String(body.driverId || ''), latitude, longitude, Number.isFinite(Number(body.accuracy)) ? Number(body.accuracy) : null, String(body.source || 'driver-portal').slice(0, 80), timestamp, timestamp);
     audit(user.id, 'gps_report', 'taxi', taxiId, { consent: true });
     sendJson(response, 201, { ok: true, taxiLocations: latestGpsForUser(user) });
+    return;
+  }
+
+  if (request.method === 'GET' && pathname === '/api/media') {
+    sendJson(response, 200, { media: mediaListForUser(user) });
+    return;
+  }
+
+  // Only an administrator may upload or remove identification photos. They are
+  // captured at registration time and attached to the account they identify.
+  if (request.method === 'POST' && pathname === '/api/media' && user.role === 'admin') {
+    let body;
+    try { body = await readJson(request); } catch (error) { sendError(response, 400, error.message); return; }
+    const ownerType = String(body.ownerType || '');
+    const kind = String(body.kind || '');
+    const allowedKinds = {
+      user: new Set(['avatar']),
+      driver: new Set(['driver_photo']),
+      taxi: new Set(['taxi_photo'])
+    };
+    if (!allowedKinds[ownerType] || !allowedKinds[ownerType].has(kind)) {
+      sendError(response, 400, 'Unsupported media owner or kind.');
+      return;
+    }
+    const ownerId = String(body.ownerId || '');
+    if (!ownerId) {
+      sendError(response, 400, 'An owner is required.');
+      return;
+    }
+    const ownerTable = { user: 'users', driver: 'drivers', taxi: 'taxis' }[ownerType];
+    if (!db.prepare(`SELECT id FROM ${ownerTable} WHERE id = ?`).get(ownerId)) {
+      sendError(response, 400, 'The account this photo belongs to was not found.');
+      return;
+    }
+    let content = Buffer.alloc(0);
+    if (body.contentBase64) {
+      try { content = Buffer.from(String(body.contentBase64), 'base64'); } catch { content = Buffer.alloc(0); }
+    }
+    if (!content.length) {
+      sendError(response, 400, 'No photo was supplied.');
+      return;
+    }
+    if (content.length > maxMediaBytes) {
+      sendError(response, 413, 'The photo is too large. Use an image under 2 MB.');
+      return;
+    }
+    const mimeType = String(body.mimeType || '').toLowerCase();
+    const allowedMimeTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+    if (!allowedMimeTypes.has(mimeType)) {
+      sendError(response, 415, 'Photos must be JPG, PNG or WEBP.');
+      return;
+    }
+    const encrypted = encryptContent(content);
+    const timestamp = nowIso();
+    const existing = db.prepare('SELECT id, created_at FROM media WHERE owner_type = ? AND owner_id = ? AND kind = ?').get(ownerType, ownerId, kind);
+    const mediaId = existing ? existing.id : id('med_');
+    db.prepare(`INSERT INTO media (id, owner_type, owner_id, kind, mime_type, byte_size, content, content_iv, content_tag, uploaded_by, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET mime_type=excluded.mime_type, byte_size=excluded.byte_size, content=excluded.content, content_iv=excluded.content_iv, content_tag=excluded.content_tag, uploaded_by=excluded.uploaded_by, updated_at=excluded.updated_at`)
+      .run(mediaId, ownerType, ownerId, kind, mimeType, content.length, encrypted.content, encrypted.iv, encrypted.tag, user.id, existing ? existing.created_at : timestamp, timestamp);
+    audit(user.id, existing ? 'media_update' : 'media_upload', ownerType, ownerId, { kind, byteSize: content.length });
+    sendJson(response, existing ? 200 : 201, { media: publicMedia(db.prepare('SELECT * FROM media WHERE id = ?').get(mediaId)) });
+    return;
+  }
+
+  const mediaItemMatch = pathname.match(/^\/api\/media\/([^/]+)$/);
+  if (mediaItemMatch && request.method === 'GET') {
+    const row = db.prepare('SELECT * FROM media WHERE id = ?').get(decodeURIComponent(mediaItemMatch[1]));
+    if (!canReadMedia(row, user)) {
+      sendError(response, 404, 'Photo not found.');
+      return;
+    }
+    const content = decryptContent(row);
+    response.writeHead(200, {
+      'Content-Type': row.mime_type || 'application/octet-stream',
+      'Content-Length': content.length,
+      // Avatars are safe to cache briefly; the row changes when re-uploaded.
+      'Cache-Control': 'private, max-age=300',
+      'X-Content-Type-Options': 'nosniff'
+    });
+    response.end(content);
+    return;
+  }
+
+  if (mediaItemMatch && request.method === 'DELETE' && user.role === 'admin') {
+    const row = db.prepare('SELECT * FROM media WHERE id = ?').get(decodeURIComponent(mediaItemMatch[1]));
+    if (!row) {
+      sendError(response, 404, 'Photo not found.');
+      return;
+    }
+    db.prepare('DELETE FROM media WHERE id = ?').run(row.id);
+    audit(user.id, 'media_delete', row.owner_type, row.owner_id, { kind: row.kind });
+    sendJson(response, 200, { ok: true });
     return;
   }
 
