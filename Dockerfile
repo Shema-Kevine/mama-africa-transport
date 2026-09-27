@@ -9,7 +9,7 @@ LABEL org.opencontainers.image.title="Mama Africa Transport" \
       org.opencontainers.image.description="Static transport operations dashboard for Uganda"
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY index.html remote-client.js fuel-prices.json LOGO.jpg driver-trip-photo.jpg driver-fuel-photo.jpg driver-maintenance-photo.jpg driver-reports-guide.svg /usr/share/nginx/html/
+COPY index.html remote-client.js fuel-prices.json LOGO.jpg driver-trip-photo.jpg driver-fuel-photo.jpg driver-maintenance-photo.jpg driver-reports-photo.jpg /usr/share/nginx/html/
 
 EXPOSE 80
 
